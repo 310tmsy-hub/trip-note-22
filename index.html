@@ -62,10 +62,18 @@ expenses:[{id:1,date:'2026-08-01',category:'航空券',title:'往復航空券',a
 packing:[{id:1,title:'パスポート',checked:false,category:'重要'},{id:2,title:'クレジットカード',checked:false,category:'重要'},{id:3,title:'充電器・変換プラグ',checked:false,category:'電子機器'}],
 notes:[{id:1,title:'旅行前に確認',body:'海外旅行保険、eSIM、空港までの移動を確認',date:'2026-09-01'}]};
 function clone(x){return JSON.parse(JSON.stringify(x))}function load(){try{return JSON.parse(localStorage.getItem(KEY))||clone(defaults)}catch(e){return clone(defaults)}}let data=load();
-const hashParams=new URLSearchParams(location.hash.replace(/^#/,'').replaceAll('&','&'));
+const SYNC_CREDENTIALS_KEY='tripnote_sync_credentials_v1';
+const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
 function randomToken(bytes=18){const a=new Uint8Array(bytes);crypto.getRandomValues(a);return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('')}
-let TRIP_ID=hashParams.get('trip')||randomToken(8), EDIT_KEY=hashParams.get('key')||randomToken(24), lastRemoteUpdatedAt=null, syncBusy=false, saveTimer=null;
-if(!hashParams.get('trip')||!hashParams.get('key')) history.replaceState(null,'',location.pathname+location.search+'#trip='+encodeURIComponent(TRIP_ID)+'&key='+encodeURIComponent(EDIT_KEY));
+function loadSavedCredentials(){try{return JSON.parse(localStorage.getItem(SYNC_CREDENTIALS_KEY))||{}}catch(e){return {}}}
+function saveCredentials(tripId,key){try{localStorage.setItem(SYNC_CREDENTIALS_KEY,JSON.stringify({tripId,key}))}catch(e){}}
+const savedCredentials=loadSavedCredentials();
+const hashTrip=hashParams.get('trip'), hashKey=hashParams.get('key');
+let TRIP_ID=(hashTrip&&hashKey?hashTrip:savedCredentials.tripId)||randomToken(8);
+let EDIT_KEY=(hashTrip&&hashKey?hashKey:savedCredentials.key)||randomToken(24);
+let lastRemoteUpdatedAt=null, syncBusy=false, saveTimer=null;
+saveCredentials(TRIP_ID,EDIT_KEY);
+if(!hashTrip||!hashKey) history.replaceState(null,'',location.pathname+location.search+'#trip='+encodeURIComponent(TRIP_ID)+'&key='+encodeURIComponent(EDIT_KEY));
 function setSync(status,text){const d=document.getElementById('syncDot'),t=document.getElementById('syncText');if(!d||!t)return;d.className='syncdot '+(status||'');t.textContent=text}
 function localSave(){localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
 function save(){localSave();clearTimeout(saveTimer);saveTimer=setTimeout(()=>cloudSave(),250)}

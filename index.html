@@ -1,1355 +1,4070 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#ffffff">
-  <title>TripNote</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
 
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>TripNote</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-  <style>
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:#f5f6f8;
-      color:#181818;
-    }
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    .hidden{display:none!important}
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    .login{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-    }
-    .login-card{
-      width:100%;
-      max-width:420px;
-      background:#fff;
-      border-radius:24px;
-      padding:28px;
-      box-shadow:0 10px 40px rgba(0,0,0,.08);
-    }
-    .logo{
-      font-size:32px;
-      font-weight:800;
-      margin-bottom:4px;
-    }
-    .sub{
-      color:#777;
-      margin-bottom:24px;
-    }
-    .field{margin-bottom:14px}
-    .field label{
-      display:block;
-      font-size:13px;
-      font-weight:700;
-      margin-bottom:6px;
-    }
-    .field input,.field select,.field textarea{
-      width:100%;
-      border:1px solid #ddd;
-      border-radius:12px;
-      padding:12px;
-      background:#fff;
-    }
-    .primary{
-      border:0;
-      border-radius:14px;
-      padding:13px 18px;
-      background:#111;
-      color:white;
-      font-weight:700;
-    }
-    .primary.full{width:100%}
-    .secondary{
-      border:1px solid #ddd;
-      background:white;
-      border-radius:12px;
-      padding:10px 14px;
-    }
-    .danger{
-      border:1px solid #ffd0d0;
-      background:#fff5f5;
-      color:#c62828;
-      border-radius:12px;
-      padding:10px 14px;
-    }
-    .error{
-      margin-top:14px;
-      color:#c62828;
-      font-size:13px;
-    }
+<style>
+*{box-sizing:border-box}
 
-    .app{
-      max-width:760px;
-      margin:auto;
-      min-height:100vh;
-      background:#f5f6f8;
-      padding-bottom:90px;
-    }
-    header{
-      position:sticky;
-      top:0;
-      z-index:20;
-      padding:14px 16px;
-      background:rgba(255,255,255,.95);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid #eee;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .brand{
-      font-weight:800;
-      font-size:20px;
-      flex:1;
-    }
-    .user-pill{
-      font-size:12px;
-      background:#f1f1f1;
-      padding:7px 9px;
-      border-radius:999px;
-      max-width:160px;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-    main{padding:16px}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#f5f6f8;
+  color:#181818;
+}
 
-    .top-row{
-      display:flex;
-      gap:8px;
-      margin-bottom:14px;
-    }
-    .top-row select{
-      flex:1;
-      padding:12px;
-      border:1px solid #ddd;
-      border-radius:14px;
-      background:#fff;
-    }
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
 
-    .hero{
-      background:#111;
-      color:#fff;
-      border-radius:22px;
-      padding:22px;
-      margin-bottom:16px;
-    }
-    .hero h2{
-      margin:0 0 6px;
-      font-size:25px;
-    }
-    .hero .meta{opacity:.75;font-size:14px}
-    .hero .budget{
-      margin-top:18px;
-      font-size:12px;
-      opacity:.7;
-    }
-    .hero .budget-value{
-      font-size:28px;
-      font-weight:800;
-      margin-top:2px;
-    }
+/* ===== AUTH ===== */
 
-    .card{
-      background:#fff;
-      border-radius:18px;
-      padding:16px;
-      margin-bottom:12px;
-      box-shadow:0 1px 3px rgba(0,0,0,.03);
-    }
-    .card h3{margin:0 0 12px}
-    .row{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .between{justify-content:space-between}
-    .muted{color:#777;font-size:13px}
-    .small{font-size:12px}
-    .badge{
-      display:inline-block;
-      font-size:11px;
-      border-radius:999px;
-      padding:5px 8px;
-      background:#eee;
-    }
-    .badge.owner{background:#e7f2ff;color:#1565c0}
-    .badge.editor{background:#e9f8ee;color:#2e7d32}
-    .badge.viewer{background:#f3f3f3;color:#555}
+.auth-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
 
-    .tabs{
-      display:flex;
-      overflow:auto;
-      gap:7px;
-      margin-bottom:14px;
-      scrollbar-width:none;
-    }
-    .tabs::-webkit-scrollbar{display:none}
-    .tab{
-      white-space:nowrap;
-      border:1px solid #ddd;
-      background:#fff;
-      padding:9px 12px;
-      border-radius:999px;
-    }
-    .tab.active{
-      background:#111;
-      color:#fff;
-      border-color:#111;
-    }
+.auth-card{
+  width:100%;
+  max-width:420px;
+  background:#fff;
+  border-radius:24px;
+  padding:28px;
+  box-shadow:0 10px 40px rgba(0,0,0,.08);
+}
 
-    .item{
-      padding:13px 0;
-      border-bottom:1px solid #eee;
-    }
-    .item:last-child{border-bottom:0}
-    .item-title{font-weight:700}
-    .item-actions{
-      display:flex;
-      gap:6px;
-      margin-top:8px;
-    }
+.logo{
+  font-size:32px;
+  font-weight:800;
+  margin-bottom:4px;
+}
 
-    .fab{
-      position:fixed;
-      right:max(18px,calc((100vw - 760px)/2 + 18px));
-      bottom:22px;
-      width:58px;
-      height:58px;
-      border-radius:50%;
-      border:0;
-      background:#111;
-      color:white;
-      font-size:26px;
-      box-shadow:0 8px 24px rgba(0,0,0,.22);
-      z-index:30;
-    }
+.auth-sub{
+  color:#777;
+  margin-bottom:24px;
+}
 
-    .modal-wrap{
-      position:fixed;
-      inset:0;
-      z-index:100;
-      background:rgba(0,0,0,.38);
-      display:flex;
-      align-items:flex-end;
-      justify-content:center;
-    }
-    .modal{
-      background:#fff;
-      width:100%;
-      max-width:760px;
-      max-height:90vh;
-      overflow:auto;
-      border-radius:24px 24px 0 0;
-      padding:20px;
-    }
-    .modal-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:18px;
-    }
-    .modal-head h3{margin:0}
-    .icon-btn{
-      border:0;
-      background:#f1f1f1;
-      border-radius:50%;
-      width:36px;
-      height:36px;
-    }
+.auth-switch{
+  margin-top:20px;
+  text-align:center;
+  font-size:14px;
+}
 
-    .member{
-      border:1px solid #eee;
-      border-radius:14px;
-      padding:12px;
-      margin-bottom:10px;
-    }
-    .member-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-top:10px;
-    }
-    .switch-row{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-top:8px;
-      font-size:14px;
-    }
-    .empty{
-      text-align:center;
-      padding:40px 18px;
-      color:#888;
-    }
-  </style>
+.link-button{
+  border:0;
+  background:none;
+  color:#0066cc;
+  font-weight:700;
+  padding:8px;
+}
+
+.message{
+  margin-top:14px;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.error{color:#c62828}
+.success{color:#2e7d32}
+
+/* ===== FORM ===== */
+
+.field{margin-bottom:14px}
+
+.field label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  border:1px solid #ddd;
+  border-radius:12px;
+  padding:12px;
+  background:#fff;
+}
+
+.primary{
+  border:0;
+  border-radius:14px;
+  padding:13px 18px;
+  background:#111;
+  color:#fff;
+  font-weight:700;
+}
+
+.primary.full{width:100%}
+
+.secondary{
+  border:1px solid #ddd;
+  background:#fff;
+  border-radius:12px;
+  padding:10px 14px;
+}
+
+.danger{
+  border:1px solid #ffd0d0;
+  background:#fff5f5;
+  color:#c62828;
+  border-radius:12px;
+  padding:10px 14px;
+}
+
+.muted{
+  color:#777;
+  font-size:13px;
+}
+
+.small{font-size:12px}
+
+/* ===== APP ===== */
+
+.app{
+  max-width:760px;
+  margin:auto;
+  min-height:100vh;
+  background:#f5f6f8;
+  padding-bottom:90px;
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  padding:max(14px,env(safe-area-inset-top)) 16px 14px;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid #eee;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.brand{
+  font-weight:800;
+  font-size:20px;
+  flex:1;
+}
+
+.user-pill{
+  font-size:11px;
+  background:#f1f1f1;
+  padding:7px 9px;
+  border-radius:999px;
+  max-width:140px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.logout-button{
+  border:1px solid #ddd;
+  background:#fff;
+  border-radius:10px;
+  padding:7px 9px;
+  font-size:12px;
+}
+
+main{padding:16px}
+
+.top-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.top-row select{
+  flex:1;
+  min-width:0;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:14px;
+  background:#fff;
+}
+
+/* ===== HERO ===== */
+
+.hero{
+  background:#111;
+  color:#fff;
+  border-radius:22px;
+  padding:22px;
+  margin-bottom:16px;
+}
+
+.hero h2{
+  margin:0 0 6px;
+  font-size:25px;
+}
+
+.hero .meta{
+  opacity:.75;
+  font-size:14px;
+  margin-top:3px;
+}
+
+.hero .budget{
+  margin-top:18px;
+  font-size:12px;
+  opacity:.7;
+}
+
+.hero .budget-value{
+  font-size:28px;
+  font-weight:800;
+  margin-top:2px;
+}
+
+/* ===== CARDS ===== */
+
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.03);
+}
+
+.card h3{margin:0 0 12px}
+
+.row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.between{justify-content:space-between}
+
+.badge{
+  display:inline-block;
+  font-size:11px;
+  border-radius:999px;
+  padding:5px 8px;
+  background:#eee;
+}
+
+.badge.owner{
+  background:#e7f2ff;
+  color:#1565c0;
+}
+
+.badge.editor{
+  background:#e9f8ee;
+  color:#2e7d32;
+}
+
+.badge.viewer{
+  background:#f3f3f3;
+  color:#555;
+}
+
+.admin-note{
+  padding:10px 12px;
+  background:#eef6ff;
+  border-radius:12px;
+  font-size:12px;
+  color:#1565c0;
+  margin-bottom:12px;
+}
+
+/* ===== TABS ===== */
+
+.tabs{
+  display:flex;
+  overflow:auto;
+  gap:7px;
+  margin-bottom:14px;
+  scrollbar-width:none;
+}
+
+.tabs::-webkit-scrollbar{display:none}
+
+.tab{
+  white-space:nowrap;
+  border:1px solid #ddd;
+  background:#fff;
+  padding:9px 12px;
+  border-radius:999px;
+}
+
+.tab.active{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+
+/* ===== ITEMS ===== */
+
+.item{
+  padding:13px 0;
+  border-bottom:1px solid #eee;
+}
+
+.item:last-child{border-bottom:0}
+
+.item-title{font-weight:700}
+
+.item-actions{
+  display:flex;
+  gap:6px;
+  margin-top:8px;
+}
+
+.empty{
+  text-align:center;
+  padding:40px 18px;
+  color:#888;
+}
+
+/* ===== FAB ===== */
+
+.fab{
+  position:fixed;
+  right:max(18px,calc((100vw - 760px)/2 + 18px));
+  bottom:max(22px,env(safe-area-inset-bottom));
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  border:0;
+  background:#111;
+  color:#fff;
+  font-size:26px;
+  box-shadow:0 8px 24px rgba(0,0,0,.22);
+  z-index:30;
+}
+
+/* ===== MODAL ===== */
+
+.modal-wrap{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(0,0,0,.38);
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+
+.modal{
+  background:#fff;
+  width:100%;
+  max-width:760px;
+  max-height:90vh;
+  overflow:auto;
+  border-radius:24px 24px 0 0;
+  padding:20px 20px max(20px,env(safe-area-inset-bottom));
+}
+
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px;
+}
+
+.modal-head h3{margin:0}
+
+.icon-btn{
+  border:0;
+  background:#f1f1f1;
+  border-radius:50%;
+  width:36px;
+  height:36px;
+}
+
+.member{
+  border:1px solid #eee;
+  border-radius:14px;
+  padding:12px;
+  margin-bottom:10px;
+}
+
+.member-name{
+  font-weight:700;
+  margin-bottom:2px;
+}
+
+.member-email{
+  font-size:12px;
+  color:#777;
+  word-break:break-all;
+}
+
+.member-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+
+.member-grid select{
+  width:100%;
+  padding:9px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  background:#fff;
+}
+
+@media(max-width:500px){
+  .user-pill{display:none}
+}
+</style>
 </head>
 
 <body>
 
-<div id="loginScreen" class="login">
-  <div class="login-card">
+<!-- ============================= -->
+<!-- LOGIN -->
+<!-- ============================= -->
+
+<div id="loginScreen" class="auth-screen">
+
+  <div class="auth-card">
+
     <div class="logo">TripNote</div>
-    <div class="sub">旅行を、みんなで安全に管理。</div>
+    <div class="auth-sub">旅行を、みんなで安全に管理。</div>
 
     <div class="field">
       <label>メールアドレス</label>
-      <input id="loginEmail" type="email" autocomplete="email">
+      <input
+        id="loginEmail"
+        type="email"
+        autocomplete="email"
+      >
     </div>
 
     <div class="field">
       <label>パスワード</label>
-      <input id="loginPassword" type="password" autocomplete="current-password">
+      <input
+        id="loginPassword"
+        type="password"
+        autocomplete="current-password"
+      >
     </div>
 
-    <button class="primary full" onclick="login()">ログイン</button>
-    <div id="loginError" class="error"></div>
+    <button
+      class="primary full"
+      onclick="login()"
+    >
+      ログイン
+    </button>
+
+    <div
+      id="loginMessage"
+      class="message error"
+    ></div>
+
+    <div class="auth-switch">
+      初めての方<br>
+
+      <button
+        class="link-button"
+        onclick="showRegister()"
+      >
+        新規登録する
+      </button>
+    </div>
+
   </div>
+
 </div>
 
+
+<!-- ============================= -->
+<!-- REGISTER -->
+<!-- ============================= -->
+
+<div
+  id="registerScreen"
+  class="auth-screen hidden"
+>
+
+  <div class="auth-card">
+
+    <div class="logo">TripNote</div>
+    <div class="auth-sub">新しいアカウントを作成</div>
+
+    <div class="field">
+      <label>名前</label>
+      <input
+        id="registerName"
+        type="text"
+        autocomplete="name"
+        placeholder="例：太郎"
+      >
+    </div>
+
+    <div class="field">
+      <label>メールアドレス</label>
+      <input
+        id="registerEmail"
+        type="email"
+        autocomplete="email"
+      >
+    </div>
+
+    <div class="field">
+      <label>パスワード</label>
+      <input
+        id="registerPassword"
+        type="password"
+        autocomplete="new-password"
+        placeholder="6文字以上"
+      >
+    </div>
+
+    <div class="field">
+      <label>パスワード確認</label>
+      <input
+        id="registerPassword2"
+        type="password"
+        autocomplete="new-password"
+      >
+    </div>
+
+    <button
+      id="registerButton"
+      class="primary full"
+      onclick="register()"
+    >
+      アカウントを作成
+    </button>
+
+    <div
+      id="registerMessage"
+      class="message"
+    ></div>
+
+    <div class="auth-switch">
+      すでにアカウントをお持ちの方<br>
+
+      <button
+        class="link-button"
+        onclick="showLogin()"
+      >
+        ログインへ戻る
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- APP -->
+<!-- ============================= -->
 
 <div id="app" class="app hidden">
 
-  <header>
-    <div class="brand">TripNote</div>
-    <div id="userLabel" class="user-pill"></div>
-    <button class="secondary" onclick="logout()">ログアウト</button>
-  </header>
+<header>
 
-  <main>
+  <div class="brand">TripNote</div>
 
-    <div class="top-row">
-      <select id="tripSelect" onchange="changeTrip()"></select>
-      <button class="secondary" onclick="openTripManager()">🧳</button>
-      <button class="secondary" onclick="openSettings()">⚙️</button>
+  <div
+    id="userLabel"
+    class="user-pill"
+  ></div>
+
+  <button
+    class="logout-button"
+    onclick="logout()"
+  >
+    ログアウト
+  </button>
+
+</header>
+
+
+<main>
+
+  <div class="top-row">
+
+    <select
+      id="tripSelect"
+      onchange="changeTrip()"
+    ></select>
+
+    <button
+      class="secondary"
+      onclick="openTripManager()"
+    >
+      🧳
+    </button>
+
+    <button
+      class="secondary"
+      onclick="openSettings()"
+    >
+      ⚙️
+    </button>
+
+  </div>
+
+
+  <div
+    id="noTrips"
+    class="card empty hidden"
+  >
+
+    <div style="font-size:34px">
+      🧳
     </div>
 
-    <div id="noTrips" class="card empty hidden">
-      <div style="font-size:34px">🧳</div>
-      <h3>旅行がありません</h3>
-      <p>新しい旅行を作成してください。</p>
-      <button class="primary" onclick="openNewTrip()">＋ 新しい旅行</button>
+    <h3>旅行がありません</h3>
+
+    <p>
+      新しい旅行を作成してください。
+    </p>
+
+    <button
+      class="primary"
+      onclick="openNewTrip()"
+    >
+      ＋ 新しい旅行
+    </button>
+
+  </div>
+
+
+  <div id="tripArea">
+
+    <section
+      id="hero"
+      class="hero"
+    ></section>
+
+
+    <div id="tabs" class="tabs">
+
+      <button
+        class="tab active"
+        data-view="home"
+        onclick="setView('home')"
+      >
+        ホーム
+      </button>
+
+      <button
+        class="tab"
+        data-view="itinerary"
+        onclick="setView('itinerary')"
+      >
+        旅程
+      </button>
+
+      <button
+        class="tab"
+        data-view="bookings"
+        onclick="setView('bookings')"
+      >
+        予約
+      </button>
+
+      <button
+        class="tab expense-tab"
+        data-view="expenses"
+        onclick="setView('expenses')"
+      >
+        費用
+      </button>
+
+      <button
+        class="tab"
+        data-view="packing"
+        onclick="setView('packing')"
+      >
+        持ち物
+      </button>
+
+      <button
+        class="tab notes-tab"
+        data-view="notes"
+        onclick="setView('notes')"
+      >
+        メモ
+      </button>
+
     </div>
 
-    <div id="tripArea">
+    <div id="content"></div>
 
-      <section id="hero" class="hero"></section>
+  </div>
 
-      <div id="tabs" class="tabs">
-        <button class="tab active" data-view="home" onclick="setView('home')">ホーム</button>
-        <button class="tab" data-view="itinerary" onclick="setView('itinerary')">旅程</button>
-        <button class="tab" data-view="bookings" onclick="setView('bookings')">予約</button>
-        <button class="tab expense-tab" data-view="expenses" onclick="setView('expenses')">費用</button>
-        <button class="tab" data-view="packing" onclick="setView('packing')">持ち物</button>
-        <button class="tab notes-tab" data-view="notes" onclick="setView('notes')">メモ</button>
-      </div>
+</main>
 
-      <div id="content"></div>
 
-    </div>
-
-  </main>
-
-  <button id="fab" class="fab" onclick="addCurrent()">＋</button>
+<button
+  id="fab"
+  class="fab"
+  onclick="addCurrent()"
+>
+  ＋
+</button>
 
 </div>
 
 
-<div id="modalWrap" class="modal-wrap hidden" onclick="closeModalOutside(event)">
-  <div id="modal" class="modal"></div>
+<!-- ============================= -->
+<!-- MODAL -->
+<!-- ============================= -->
+
+<div
+  id="modalWrap"
+  class="modal-wrap hidden"
+  onclick="closeModalOutside(event)"
+>
+
+  <div
+    id="modal"
+    class="modal"
+  ></div>
+
 </div>
 
 
 <script>
+
+/* ============================= */
+/* STATE */
+/* ============================= */
+
 let client = null;
+
 let me = null;
 let profile = null;
 
 let trips = [];
+
 let activeTripId = null;
 let activeTrip = null;
+
 let activeMembership = null;
 
 let currentView = 'home';
 
-const $ = id => document.getElementById(id);
+
+const $ = id =>
+  document.getElementById(id);
+
+
+/* ============================= */
+/* UTILS */
+/* ============================= */
 
 function esc(v=''){
+
   return String(v)
     .replaceAll('&','&amp;')
     .replaceAll('<','&lt;')
     .replaceAll('>','&gt;')
     .replaceAll('"','&quot;')
     .replaceAll("'","&#039;");
+
 }
 
-function money(n,c='EUR'){
+
+function money(
+  n,
+  currency='EUR'
+){
+
   try{
-    return new Intl.NumberFormat('ja-JP',{
-      style:'currency',
-      currency:c || 'EUR',
-      maximumFractionDigits:0
-    }).format(Number(n||0));
-  }catch{
-    return `${Number(n||0).toLocaleString()} ${c||''}`;
-  }
-}
 
-async function init(){
-  try{
-    const r = await fetch('/api/config');
-    const cfg = await r.json();
-
-    if(!cfg.supabaseUrl || !cfg.supabaseAnonKey){
-      throw new Error('Supabase設定がありません');
-    }
-
-    client = window.supabase.createClient(
-      cfg.supabaseUrl,
-      cfg.supabaseAnonKey
+    return new Intl.NumberFormat(
+      'ja-JP',
+      {
+        style:'currency',
+        currency:currency || 'EUR',
+        maximumFractionDigits:0
+      }
+    ).format(
+      Number(n || 0)
     );
 
-    const {data:{session}} = await client.auth.getSession();
+  }catch{
 
-    if(session){
-      me = session.user;
-      await afterLogin();
-    }else{
-      showLogin();
+    return Number(n || 0).toLocaleString()
+      + ' '
+      + (currency || '');
+
+  }
+
+}
+
+
+/* ============================= */
+/* INITIALIZE */
+/* ============================= */
+
+async function init(){
+
+  try{
+
+    const response =
+      await fetch(
+        '/api/config',
+        {
+          cache:'no-store'
+        }
+      );
+
+
+    if(!response.ok){
+
+      throw new Error(
+        'CONFIG_ERROR'
+      );
+
     }
 
-    client.auth.onAuthStateChange(async (event,session)=>{
-      if(event === 'SIGNED_OUT'){
-        showLogin();
-      }
-    });
 
-  }catch(e){
-    $('loginError').textContent =
+    const config =
+      await response.json();
+
+
+    if(
+      !config.supabaseUrl
+      ||
+      !config.supabaseAnonKey
+    ){
+
+      throw new Error(
+        'Supabase設定がありません'
+      );
+
+    }
+
+
+    client =
+      window.supabase.createClient(
+        config.supabaseUrl,
+        config.supabaseAnonKey
+      );
+
+
+    const {
+      data:{
+        session
+      }
+    } =
+      await client.auth.getSession();
+
+
+    if(session){
+
+      me =
+        session.user;
+
+      await afterLogin();
+
+    }else{
+
+      showLogin();
+
+    }
+
+
+    client.auth.onAuthStateChange(
+      async(
+        event,
+        session
+      )=>{
+
+        if(
+          event ===
+          'SIGNED_OUT'
+        ){
+
+          me = null;
+          profile = null;
+
+          showLogin();
+
+        }
+
+      }
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    $('loginMessage').textContent =
       'アプリ設定を読み込めませんでした。';
-    console.error(e);
+
   }
+
 }
+
+
+/* ============================= */
+/* AUTH SCREEN */
+/* ============================= */
 
 function showLogin(){
-  $('loginScreen').classList.remove('hidden');
-  $('app').classList.add('hidden');
+
+  $('loginScreen')
+    .classList
+    .remove('hidden');
+
+  $('registerScreen')
+    .classList
+    .add('hidden');
+
+  $('app')
+    .classList
+    .add('hidden');
+
 }
+
+
+function showRegister(){
+
+  $('loginScreen')
+    .classList
+    .add('hidden');
+
+  $('registerScreen')
+    .classList
+    .remove('hidden');
+
+  $('app')
+    .classList
+    .add('hidden');
+
+  $('registerMessage')
+    .className =
+    'message';
+
+  $('registerMessage')
+    .textContent =
+    '';
+
+}
+
+
+/* ============================= */
+/* LOGIN */
+/* ============================= */
 
 async function login(){
-  $('loginError').textContent = '';
 
-  const email = $('loginEmail').value.trim();
-  const password = $('loginPassword').value;
+  $('loginMessage')
+    .textContent = '';
 
-  const {data,error} = await client.auth.signInWithPassword({
-    email,
-    password
-  });
 
-  if(error){
-    $('loginError').textContent =
-      'メールアドレスまたはパスワードを確認してください。';
+  const email =
+    $('loginEmail')
+      .value
+      .trim();
+
+
+  const password =
+    $('loginPassword')
+      .value;
+
+
+  if(
+    !email
+    ||
+    !password
+  ){
+
+    $('loginMessage')
+      .textContent =
+      'メールアドレスとパスワードを入力してください。';
+
     return;
+
   }
 
-  me = data.user;
+
+  const {
+    data,
+    error
+  } =
+    await client.auth
+      .signInWithPassword({
+        email,
+        password
+      });
+
+
+  if(error){
+
+    console.error(error);
+
+    $('loginMessage')
+      .textContent =
+      'メールアドレスまたはパスワードを確認してください。';
+
+    return;
+
+  }
+
+
+  me =
+    data.user;
+
+
   await afterLogin();
+
 }
+
+
+/* ============================= */
+/* REGISTER */
+/* ============================= */
+
+async function register(){
+
+  const name =
+    $('registerName')
+      .value
+      .trim();
+
+
+  const email =
+    $('registerEmail')
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  const password =
+    $('registerPassword')
+      .value;
+
+
+  const password2 =
+    $('registerPassword2')
+      .value;
+
+
+  const message =
+    $('registerMessage');
+
+
+  message.className =
+    'message';
+
+  message.textContent =
+    '';
+
+
+  if(!name){
+
+    message.classList
+      .add('error');
+
+    message.textContent =
+      '名前を入力してください。';
+
+    return;
+
+  }
+
+
+  if(!email){
+
+    message.classList
+      .add('error');
+
+    message.textContent =
+      'メールアドレスを入力してください。';
+
+    return;
+
+  }
+
+
+  if(password.length < 6){
+
+    message.classList
+      .add('error');
+
+    message.textContent =
+      'パスワードは6文字以上にしてください。';
+
+    return;
+
+  }
+
+
+  if(
+    password !==
+    password2
+  ){
+
+    message.classList
+      .add('error');
+
+    message.textContent =
+      '確認用パスワードが一致していません。';
+
+    return;
+
+  }
+
+
+  $('registerButton')
+    .disabled = true;
+
+  $('registerButton')
+    .textContent =
+    '登録中...';
+
+
+  const {
+    data,
+    error
+  } =
+    await client.auth.signUp({
+
+      email,
+
+      password,
+
+      options:{
+        data:{
+          name
+        }
+      }
+
+    });
+
+
+  $('registerButton')
+    .disabled = false;
+
+  $('registerButton')
+    .textContent =
+    'アカウントを作成';
+
+
+  if(error){
+
+    console.error(error);
+
+    message.classList
+      .add('error');
+
+    message.textContent =
+      '新規登録できませんでした。メールアドレスやパスワードを確認してください。';
+
+    return;
+
+  }
+
+
+  message.classList
+    .add('success');
+
+
+  if(
+    data.session
+  ){
+
+    message.textContent =
+      '登録が完了しました。';
+
+
+    me =
+      data.user;
+
+
+    setTimeout(
+      ()=>{
+        afterLogin();
+      },
+      600
+    );
+
+  }else{
+
+    message.textContent =
+      '登録しました。確認メールを送信しました。メール内のリンクを押したあと、TripNoteに戻ってログインしてください。';
+
+  }
+
+}
+
+
+/* ============================= */
+/* LOGOUT */
+/* ============================= */
 
 async function logout(){
+
+  if(!client) return;
+
   await client.auth.signOut();
+
   location.reload();
+
 }
 
-async function afterLogin(){
-  const {data:p,error} = await client
-    .from('profiles')
-    .select('*')
-    .eq('id',me.id)
-    .single();
 
-  if(error){
-    alert('プロフィール情報を取得できませんでした。');
-    console.error(error);
-    return;
+/* ============================= */
+/* AFTER LOGIN */
+/* ============================= */
+
+async function afterLogin(){
+
+  if(!me) return;
+
+
+  let {
+    data:p,
+    error
+  } =
+    await client
+      .from('profiles')
+      .select('*')
+      .eq('id',me.id)
+      .maybeSingle();
+
+
+  if(
+    !p
+    &&
+    !error
+  ){
+
+    await new Promise(
+      resolve =>
+        setTimeout(resolve,500)
+    );
+
+
+    const result =
+      await client
+        .from('profiles')
+        .select('*')
+        .eq('id',me.id)
+        .maybeSingle();
+
+
+    p =
+      result.data;
+
+    error =
+      result.error;
+
   }
+
+
+  if(
+    error
+    ||
+    !p
+  ){
+
+    console.error(error);
+
+    alert(
+      'プロフィール情報を取得できませんでした。'
+    );
+
+    return;
+
+  }
+
 
   profile = p;
 
-  $('userLabel').textContent =
-    `${profile.name || me.email}${profile.is_admin ? ' ・管理者' : ''}`;
 
-  $('loginScreen').classList.add('hidden');
-  $('app').classList.remove('hidden');
+  $('userLabel')
+    .textContent =
+    (
+      profile.name
+      ||
+      me.email
+    )
+    +
+    (
+      profile.is_admin
+      ? '・管理者'
+      : ''
+    );
+
+
+  $('loginScreen')
+    .classList
+    .add('hidden');
+
+  $('registerScreen')
+    .classList
+    .add('hidden');
+
+  $('app')
+    .classList
+    .remove('hidden');
+
 
   await loadTrips();
+
 }
+
+
+/* ============================= */
+/* LOAD TRIPS */
+/* ============================= */
 
 async function loadTrips(){
-  const {data,error} = await client
-    .from('trips')
-    .select('*')
-    .order('start_date',{ascending:true});
+
+  const {
+    data,
+    error
+  } =
+    await client
+      .from('trips')
+      .select('*')
+      .order(
+        'start_date',
+        {
+          ascending:true,
+          nullsFirst:false
+        }
+      );
+
 
   if(error){
+
     console.error(error);
-    alert('旅行一覧を取得できませんでした。');
+
+    alert(
+      '旅行一覧を取得できませんでした。'
+    );
+
     return;
+
   }
 
-  trips = data || [];
 
-  if(!trips.length){
+  trips =
+    data || [];
+
+
+  if(
+    !trips.length
+  ){
+
     activeTripId = null;
     activeTrip = null;
-    $('noTrips').classList.remove('hidden');
-    $('tripArea').classList.add('hidden');
-    $('fab').classList.add('hidden');
-    $('tripSelect').innerHTML = '';
+
+    $('noTrips')
+      .classList
+      .remove('hidden');
+
+    $('tripArea')
+      .classList
+      .add('hidden');
+
+    $('fab')
+      .classList
+      .add('hidden');
+
+    $('tripSelect')
+      .innerHTML = '';
+
     return;
+
   }
 
-  $('noTrips').classList.add('hidden');
-  $('tripArea').classList.remove('hidden');
-  $('fab').classList.remove('hidden');
 
-  if(!activeTripId || !trips.some(t=>t.id===activeTripId)){
-    activeTripId = trips[0].id;
+  $('noTrips')
+    .classList
+    .add('hidden');
+
+  $('tripArea')
+    .classList
+    .remove('hidden');
+
+  $('fab')
+    .classList
+    .remove('hidden');
+
+
+  if(
+    !activeTripId
+    ||
+    !trips.some(
+      t =>
+        t.id === activeTripId
+    )
+  ){
+
+    activeTripId =
+      trips[0].id;
+
   }
+
 
   renderTripSelector();
+
   await loadActiveTrip();
+
 }
+
+
+/* ============================= */
+/* TRIP SELECTOR */
+/* ============================= */
 
 function renderTripSelector(){
-  $('tripSelect').innerHTML = trips.map(t=>
-    `<option value="${t.id}" ${t.id===activeTripId?'selected':''}>
-      ${esc(t.title)}
-    </option>`
-  ).join('');
+
+  $('tripSelect')
+    .innerHTML =
+    trips.map(
+      t => `
+
+        <option
+          value="${t.id}"
+          ${t.id===activeTripId?'selected':''}
+        >
+          ${esc(t.title)}
+        </option>
+
+      `
+    ).join('');
+
 }
+
 
 async function changeTrip(){
-  activeTripId = $('tripSelect').value;
-  currentView = 'home';
+
+  activeTripId =
+    $('tripSelect').value;
+
+  currentView =
+    'home';
+
   await loadActiveTrip();
+
 }
 
+
+/* ============================= */
+/* ACTIVE TRIP */
+/* ============================= */
+
 async function loadActiveTrip(){
-  activeTrip = trips.find(t=>t.id===activeTripId);
+
+  activeTrip =
+    trips.find(
+      t =>
+        t.id === activeTripId
+    );
+
 
   if(!activeTrip) return;
 
-  activeMembership = null;
 
-  if(activeTrip.owner_id !== me.id && !profile.is_admin){
-    const {data} = await client
-      .from('trip_members')
-      .select('*')
-      .eq('trip_id',activeTrip.id)
-      .eq('user_id',me.id)
-      .maybeSingle();
+  activeMembership =
+    null;
 
-    activeMembership = data || null;
+
+  if(
+    activeTrip.owner_id !== me.id
+    &&
+    !profile.is_admin
+  ){
+
+    const {
+      data
+    } =
+      await client
+        .from('trip_members')
+        .select('*')
+        .eq(
+          'trip_id',
+          activeTrip.id
+        )
+        .eq(
+          'user_id',
+          me.id
+        )
+        .maybeSingle();
+
+
+    activeMembership =
+      data || null;
+
   }
+
 
   renderHero();
+
   updateTabs();
-  setView(currentView);
+
+  setView(
+    currentView
+  );
+
 }
+
+
+/* ============================= */
+/* PERMISSIONS */
+/* ============================= */
 
 function isOwner(){
-  return profile?.is_admin || activeTrip?.owner_id === me?.id;
+
+  return (
+    profile?.is_admin
+    ||
+    activeTrip?.owner_id === me?.id
+  );
+
 }
+
+
+function isActualOwner(){
+
+  return (
+    activeTrip?.owner_id ===
+    me?.id
+  );
+
+}
+
 
 function canEdit(){
-  return isOwner() || activeMembership?.role === 'editor';
+
+  return (
+    isOwner()
+    ||
+    activeMembership?.role ===
+      'editor'
+  );
+
 }
+
 
 function canSeeExpenses(){
-  return isOwner() || !!activeMembership?.can_view_expenses;
+
+  return (
+    isOwner()
+    ||
+    !!activeMembership
+      ?.can_view_expenses
+  );
+
 }
+
 
 function canSeeNotes(){
-  return isOwner() || !!activeMembership?.can_view_notes;
+
+  return (
+    isOwner()
+    ||
+    !!activeMembership
+      ?.can_view_notes
+  );
+
 }
+
+
+/* ============================= */
+/* HERO */
+/* ============================= */
 
 function renderHero(){
-  const t = activeTrip;
+
+  const t =
+    activeTrip;
+
 
   const dates =
-    [t.start_date,t.end_date].filter(Boolean).join(' 〜 ') || '日程未設定';
+    [
+      t.start_date,
+      t.end_date
+    ]
+    .filter(Boolean)
+    .join(' 〜 ')
+    ||
+    '日程未設定';
 
-  let budgetHtml = '';
 
-  if(canSeeExpenses()){
-    budgetHtml = `
-      <div class="budget">予算</div>
-      <div class="budget-value">${money(t.budget,t.currency)}</div>
+  $('hero')
+    .innerHTML = `
+
+      <h2>
+        ${esc(t.title)}
+      </h2>
+
+      <div class="meta">
+        ${esc(
+          t.cities ||
+          '行き先未設定'
+        )}
+      </div>
+
+      <div class="meta">
+        ${esc(dates)}
+      </div>
+
+      <div class="budget">
+        旅行予算
+      </div>
+
+      <div class="budget-value">
+        ${money(
+          t.budget,
+          t.currency
+        )}
+      </div>
+
     `;
-  }
 
-  $('hero').innerHTML = `
-    <h2>${esc(t.title)}</h2>
-    <div class="meta">${esc(t.cities || '行き先未設定')}</div>
-    <div class="meta">${esc(dates)}</div>
-    ${budgetHtml}
-  `;
 }
+
+
+/* ============================= */
+/* TABS */
+/* ============================= */
 
 function updateTabs(){
-  document.querySelectorAll('.expense-tab')
-    .forEach(el=>el.classList.toggle('hidden',!canSeeExpenses()));
 
-  document.querySelectorAll('.notes-tab')
-    .forEach(el=>el.classList.toggle('hidden',!canSeeNotes()));
+  document
+    .querySelectorAll(
+      '.expense-tab'
+    )
+    .forEach(
+      el =>
+        el.classList.toggle(
+          'hidden',
+          !canSeeExpenses()
+        )
+    );
 
-  if(currentView==='expenses' && !canSeeExpenses()) currentView='home';
-  if(currentView==='notes' && !canSeeNotes()) currentView='home';
+
+  document
+    .querySelectorAll(
+      '.notes-tab'
+    )
+    .forEach(
+      el =>
+        el.classList.toggle(
+          'hidden',
+          !canSeeNotes()
+        )
+    );
+
+
+  if(
+    currentView ===
+    'expenses'
+    &&
+    !canSeeExpenses()
+  ){
+
+    currentView =
+      'home';
+
+  }
+
+
+  if(
+    currentView ===
+    'notes'
+    &&
+    !canSeeNotes()
+  ){
+
+    currentView =
+      'home';
+
+  }
+
 }
+
+
+/* ============================= */
+/* VIEW */
+/* ============================= */
 
 function setView(view){
-  currentView = view;
 
-  document.querySelectorAll('.tab')
-    .forEach(t=>t.classList.toggle(
-      'active',
-      t.dataset.view===view
-    ));
+  currentView =
+    view;
 
-  if(view==='home') renderHome();
-  if(view==='itinerary') renderTable('itinerary');
-  if(view==='bookings') renderTable('bookings');
-  if(view==='expenses') renderTable('expenses');
-  if(view==='packing') renderTable('packing');
-  if(view==='notes') renderTable('notes');
+
+  document
+    .querySelectorAll('.tab')
+    .forEach(
+      tab => {
+
+        tab.classList.toggle(
+          'active',
+          tab.dataset.view === view
+        );
+
+      }
+    );
+
+
+  if(view === 'home')
+    renderHome();
+
+  if(view === 'itinerary')
+    renderTable('itinerary');
+
+  if(view === 'bookings')
+    renderTable('bookings');
+
+  if(view === 'expenses')
+    renderTable('expenses');
+
+  if(view === 'packing')
+    renderTable('packing');
+
+  if(view === 'notes')
+    renderTable('notes');
+
 }
 
+
+/* ============================= */
+/* HOME */
+/* ============================= */
+
 function renderHome(){
-  $('content').innerHTML = `
-    <div class="card">
-      <h3>旅行情報</h3>
 
-      <div class="item">
-        <div class="muted">旅行名</div>
-        <div class="item-title">${esc(activeTrip.title)}</div>
+  let permissionText =
+    '閲覧のみ';
+
+  let permissionClass =
+    'viewer';
+
+
+  if(isOwner()){
+
+    permissionText =
+      profile.is_admin
+      &&
+      !isActualOwner()
+      ? '管理者'
+      : '所有者';
+
+    permissionClass =
+      'owner';
+
+  }else if(
+    activeMembership
+      ?.role ===
+      'editor'
+  ){
+
+    permissionText =
+      '編集可能';
+
+    permissionClass =
+      'editor';
+
+  }
+
+
+  $('content')
+    .innerHTML = `
+
+      ${
+        profile.is_admin
+        &&
+        !isActualOwner()
+        ? `
+          <div class="admin-note">
+            管理者としてこの旅行を表示しています。
+          </div>
+        `
+        : ''
+      }
+
+      <div class="card">
+
+        <h3>
+          旅行情報
+        </h3>
+
+        <div class="item">
+
+          <div class="muted">
+            旅行名
+          </div>
+
+          <div class="item-title">
+            ${esc(activeTrip.title)}
+          </div>
+
+        </div>
+
+        <div class="item">
+
+          <div class="muted">
+            行き先
+          </div>
+
+          <div>
+            ${esc(
+              activeTrip.cities
+              ||
+              '未設定'
+            )}
+          </div>
+
+        </div>
+
+        <div class="item">
+
+          <div class="muted">
+            期間
+          </div>
+
+          <div>
+
+            ${esc(
+              activeTrip.start_date
+              ||
+              '未設定'
+            )}
+
+            〜
+
+            ${esc(
+              activeTrip.end_date
+              ||
+              '未設定'
+            )}
+
+          </div>
+
+        </div>
+
+        <div class="item">
+
+          <div class="muted">
+            予算
+          </div>
+
+          <div class="item-title">
+            ${money(
+              activeTrip.budget,
+              activeTrip.currency
+            )}
+          </div>
+
+        </div>
+
+        <div class="item">
+
+          <span
+            class="badge ${permissionClass}"
+          >
+            ${permissionText}
+          </span>
+
+        </div>
+
       </div>
 
-      <div class="item">
-        <div class="muted">行き先</div>
-        <div>${esc(activeTrip.cities || '未設定')}</div>
-      </div>
+    `;
 
-      <div class="item">
-        <div class="muted">期間</div>
-        <div>
-          ${esc(activeTrip.start_date || '未設定')}
-          〜
-          ${esc(activeTrip.end_date || '未設定')}
+}
+
+
+/* ============================= */
+/* TABLE CONFIG */
+/* ============================= */
+
+const tableConfig = {
+
+  itinerary:{
+    title:'旅程'
+  },
+
+  bookings:{
+    title:'予約'
+  },
+
+  expenses:{
+    title:'費用'
+  },
+
+  packing:{
+    title:'持ち物'
+  },
+
+  notes:{
+    title:'メモ'
+  }
+
+};
+
+
+/* ============================= */
+/* LOAD CONTENT */
+/* ============================= */
+
+async function renderTable(table){
+
+  if(
+    table ===
+    'expenses'
+    &&
+    !canSeeExpenses()
+  ){
+
+    setView('home');
+
+    return;
+
+  }
+
+
+  if(
+    table ===
+    'notes'
+    &&
+    !canSeeNotes()
+  ){
+
+    setView('home');
+
+    return;
+
+  }
+
+
+  $('content')
+    .innerHTML = `
+
+      <div class="card">
+        <div class="muted">
+          読み込み中...
         </div>
       </div>
 
-      <div class="item">
-        <span class="badge ${
-          isOwner()
-            ? 'owner'
-            : activeMembership?.role==='editor'
-              ? 'editor'
-              : 'viewer'
-        }">
-          ${
-            isOwner()
-              ? '管理'
-              : activeMembership?.role==='editor'
-                ? '編集可能'
-                : '閲覧のみ'
-          }
-        </span>
-      </div>
-    </div>
-  `;
-}
+    `;
 
-const tableConfig = {
-  itinerary:{
-    title:'旅程',
-    fields:['event_date','event_time','title','place','note']
-  },
-  bookings:{
-    title:'予約',
-    fields:['type','title','provider','reservation_code','price','paid','status','link']
-  },
-  expenses:{
-    title:'費用',
-    fields:['expense_date','category','title','amount','paid']
-  },
-  packing:{
-    title:'持ち物',
-    fields:['title','category','checked']
-  },
-  notes:{
-    title:'メモ',
-    fields:['title','body','note_date']
-  }
-};
 
-async function renderTable(table){
-  if(table==='expenses' && !canSeeExpenses()){
-    setView('home');
-    return;
-  }
+  const {
+    data,
+    error
+  } =
+    await client
+      .from(table)
+      .select('*')
+      .eq(
+        'trip_id',
+        activeTripId
+      )
+      .order(
+        'created_at',
+        {
+          ascending:true
+        }
+      );
 
-  if(table==='notes' && !canSeeNotes()){
-    setView('home');
-    return;
-  }
-
-  $('content').innerHTML =
-    `<div class="card"><div class="muted">読み込み中...</div></div>`;
-
-  let query = client
-    .from(table)
-    .select('*')
-    .eq('trip_id',activeTripId)
-    .order('created_at',{ascending:true});
-
-  const {data,error} = await query;
 
   if(error){
+
     console.error(error);
-    $('content').innerHTML =
-      `<div class="card">読み込みに失敗しました。</div>`;
+
+    $('content')
+      .innerHTML = `
+
+        <div class="card">
+          読み込みに失敗しました。
+        </div>
+
+      `;
+
     return;
+
   }
 
-  const rows = data || [];
-  const config = tableConfig[table];
 
-  if(!rows.length){
-    $('content').innerHTML = `
-      <div class="card empty">
-        <h3>${config.title}</h3>
-        <p>まだ登録されていません。</p>
-      </div>
-    `;
-    return;
-  }
+  const rows =
+    data || [];
 
-  $('content').innerHTML = `
-    <div class="card">
-      <h3>${config.title}</h3>
 
-      ${rows.map(row=>`
-        <div class="item">
-          ${renderRow(table,row)}
+  const config =
+    tableConfig[table];
+
+
+  if(
+    !rows.length
+  ){
+
+    $('content')
+      .innerHTML = `
+
+        <div class="card empty">
+
+          <h3>
+            ${config.title}
+          </h3>
+
+          <p>
+            まだ登録されていません。
+          </p>
 
           ${
             canEdit()
-              ? `<div class="item-actions">
-                   <button class="danger"
-                     onclick="deleteRow('${table}','${row.id}')">
-                     削除
-                   </button>
-                 </div>`
-              : ''
+            ? `
+              <button
+                class="primary"
+                onclick="openAddModal('${table}')"
+              >
+                ＋ 追加
+              </button>
+            `
+            : ''
           }
+
         </div>
-      `).join('')}
-    </div>
-  `;
+
+      `;
+
+    return;
+
+  }
+
+
+  $('content')
+    .innerHTML = `
+
+      <div class="card">
+
+        <h3>
+          ${config.title}
+        </h3>
+
+        ${
+
+          rows.map(
+            row => `
+
+              <div class="item">
+
+                ${renderRow(
+                  table,
+                  row
+                )}
+
+                ${
+                  canEdit()
+                  ? `
+                    <div class="item-actions">
+
+                      <button
+                        class="danger"
+                        onclick="deleteRow(
+                          '${table}',
+                          '${row.id}'
+                        )"
+                      >
+                        削除
+                      </button>
+
+                    </div>
+                  `
+                  : ''
+                }
+
+              </div>
+
+            `
+          ).join('')
+
+        }
+
+      </div>
+
+    `;
+
 }
 
-function renderRow(table,r){
-  if(table==='itinerary'){
+
+/* ============================= */
+/* RENDER ROW */
+/* ============================= */
+
+function renderRow(
+  table,
+  r
+){
+
+  if(
+    table ===
+    'itinerary'
+  ){
+
     return `
-      <div class="muted">${esc(r.event_date||'')} ${esc(r.event_time||'')}</div>
-      <div class="item-title">${esc(r.title)}</div>
-      <div>${esc(r.place||'')}</div>
-      <div class="muted">${esc(r.note||'')}</div>
+
+      <div class="muted">
+        ${esc(r.event_date || '')}
+        ${esc(r.event_time || '')}
+      </div>
+
+      <div class="item-title">
+        ${esc(r.title)}
+      </div>
+
+      <div>
+        ${esc(r.place || '')}
+      </div>
+
+      <div class="muted">
+        ${esc(r.note || '')}
+      </div>
+
     `;
+
   }
 
-  if(table==='bookings'){
+
+  if(
+    table ===
+    'bookings'
+  ){
+
     return `
-      <div class="item-title">${esc(r.title)}</div>
-      <div class="muted">${esc(r.provider||'')} ${esc(r.status||'')}</div>
-      ${r.price ? `<div>${money(r.price,activeTrip.currency)}</div>` : ''}
-      ${r.reservation_code ? `<div class="small">予約番号：${esc(r.reservation_code)}</div>` : ''}
+
+      <div class="item-title">
+        ${esc(r.title)}
+      </div>
+
+      <div class="muted">
+        ${esc(r.provider || '')}
+        ${esc(r.status || '')}
+      </div>
+
+      ${
+        r.price
+        ? `
+          <div>
+            ${money(
+              r.price,
+              activeTrip.currency
+            )}
+          </div>
+        `
+        : ''
+      }
+
+      ${
+        r.reservation_code
+        ? `
+          <div class="small">
+            予約番号：
+            ${esc(r.reservation_code)}
+          </div>
+        `
+        : ''
+      }
+
     `;
+
   }
 
-  if(table==='expenses'){
+
+  if(
+    table ===
+    'expenses'
+  ){
+
     return `
+
       <div class="row between">
+
         <div>
-          <div class="item-title">${esc(r.title)}</div>
-          <div class="muted">${esc(r.category||'')} ${esc(r.expense_date||'')}</div>
+
+          <div class="item-title">
+            ${esc(r.title)}
+          </div>
+
+          <div class="muted">
+            ${esc(r.category || '')}
+            ${esc(r.expense_date || '')}
+          </div>
+
         </div>
-        <strong>${money(r.amount,activeTrip.currency)}</strong>
+
+        <strong>
+          ${money(
+            r.amount,
+            activeTrip.currency
+          )}
+        </strong>
+
       </div>
+
     `;
+
   }
 
-  if(table==='packing'){
+
+  if(
+    table ===
+    'packing'
+  ){
+
     return `
+
       <div class="row">
-        <span>${r.checked?'✅':'⬜️'}</span>
+
+        <span>
+          ${r.checked ? '✅' : '⬜️'}
+        </span>
+
         <div>
-          <div class="item-title">${esc(r.title)}</div>
-          <div class="muted">${esc(r.category||'')}</div>
+
+          <div class="item-title">
+            ${esc(r.title)}
+          </div>
+
+          <div class="muted">
+            ${esc(r.category || '')}
+          </div>
+
         </div>
+
       </div>
+
     `;
+
   }
 
-  if(table==='notes'){
+
+  if(
+    table ===
+    'notes'
+  ){
+
     return `
-      <div class="item-title">${esc(r.title)}</div>
-      <div class="muted">${esc(r.note_date||'')}</div>
-      <div>${esc(r.body||'')}</div>
+
+      <div class="item-title">
+        ${esc(r.title)}
+      </div>
+
+      <div class="muted">
+        ${esc(r.note_date || '')}
+      </div>
+
+      <div>
+        ${esc(r.body || '')}
+      </div>
+
     `;
+
   }
+
 
   return '';
+
 }
+
+
+/* ============================= */
+/* FAB */
+/* ============================= */
 
 function addCurrent(){
-  if(!activeTrip || !canEdit()) return;
 
-  if(currentView==='home'){
-    openTripEdit();
+  if(
+    !activeTrip
+    ||
+    !canEdit()
+  ){
+
     return;
+
   }
 
-  openAddModal(currentView);
+
+  if(
+    currentView ===
+    'home'
+  ){
+
+    openTripEdit();
+
+    return;
+
+  }
+
+
+  openAddModal(
+    currentView
+  );
+
 }
+
+
+/* ============================= */
+/* MODAL */
+/* ============================= */
 
 function openModal(html){
-  $('modal').innerHTML = html;
-  $('modalWrap').classList.remove('hidden');
+
+  $('modal')
+    .innerHTML =
+    html;
+
+  $('modalWrap')
+    .classList
+    .remove('hidden');
+
 }
+
 
 function closeModal(){
-  $('modalWrap').classList.add('hidden');
+
+  $('modalWrap')
+    .classList
+    .add('hidden');
+
 }
+
 
 function closeModalOutside(e){
-  if(e.target.id==='modalWrap') closeModal();
+
+  if(
+    e.target.id ===
+    'modalWrap'
+  ){
+
+    closeModal();
+
+  }
+
 }
 
-function field(label,id,type='text',value=''){
+
+function field(
+  label,
+  id,
+  type='text',
+  value=''
+){
+
   return `
+
     <div class="field">
-      <label>${label}</label>
-      <input id="${id}" type="${type}" value="${esc(value)}">
+
+      <label>
+        ${label}
+      </label>
+
+      <input
+        id="${id}"
+        type="${type}"
+        value="${esc(value)}"
+      >
+
     </div>
+
   `;
+
 }
+
+
+/* ============================= */
+/* ADD ROW */
+/* ============================= */
 
 function openAddModal(table){
-  if(!canEdit()) return;
+
+  if(
+    !canEdit()
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    table === 'expenses'
+    &&
+    !canSeeExpenses()
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    table === 'notes'
+    &&
+    !canSeeNotes()
+  ){
+
+    return;
+
+  }
+
 
   let html = `
+
     <div class="modal-head">
-      <h3>${tableConfig[table].title}を追加</h3>
-      <button class="icon-btn" onclick="closeModal()">×</button>
+
+      <h3>
+        ${tableConfig[table].title}を追加
+      </h3>
+
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
     </div>
+
   `;
 
-  if(table==='itinerary'){
+
+  if(
+    table ===
+    'itinerary'
+  ){
+
     html +=
-      field('日付','f1','date')+
-      field('時間','f2','time')+
-      field('予定','f3')+
-      field('場所','f4')+
-      field('メモ','f5');
+
+      field(
+        '日付',
+        'f1',
+        'date'
+      )
+
+      +
+
+      field(
+        '時間',
+        'f2',
+        'time'
+      )
+
+      +
+
+      field(
+        '予定',
+        'f3'
+      )
+
+      +
+
+      field(
+        '場所',
+        'f4'
+      )
+
+      +
+
+      field(
+        'メモ',
+        'f5'
+      );
+
   }
 
-  if(table==='bookings'){
+
+  if(
+    table ===
+    'bookings'
+  ){
+
     html +=
-      field('種類','f1')+
-      field('予約名','f2')+
-      field('会社・施設','f3')+
-      field('予約番号','f4')+
-      field('金額','f5','number')+
-      field('ステータス','f6');
+
+      field(
+        '種類',
+        'f1'
+      )
+
+      +
+
+      field(
+        '予約名',
+        'f2'
+      )
+
+      +
+
+      field(
+        '会社・施設',
+        'f3'
+      )
+
+      +
+
+      field(
+        '予約番号',
+        'f4'
+      )
+
+      +
+
+      field(
+        '金額',
+        'f5',
+        'number'
+      )
+
+      +
+
+      field(
+        'ステータス',
+        'f6'
+      );
+
   }
 
-  if(table==='expenses'){
+
+  if(
+    table ===
+    'expenses'
+  ){
+
     html +=
-      field('日付','f1','date')+
-      field('カテゴリー','f2')+
-      field('内容','f3')+
-      field('金額','f4','number');
+
+      field(
+        '日付',
+        'f1',
+        'date'
+      )
+
+      +
+
+      field(
+        'カテゴリー',
+        'f2'
+      )
+
+      +
+
+      field(
+        '内容',
+        'f3'
+      )
+
+      +
+
+      field(
+        '金額',
+        'f4',
+        'number'
+      );
+
   }
 
-  if(table==='packing'){
+
+  if(
+    table ===
+    'packing'
+  ){
+
     html +=
-      field('持ち物','f1')+
-      field('カテゴリー','f2');
+
+      field(
+        '持ち物',
+        'f1'
+      )
+
+      +
+
+      field(
+        'カテゴリー',
+        'f2'
+      );
+
   }
 
-  if(table==='notes'){
+
+  if(
+    table ===
+    'notes'
+  ){
+
     html +=
-      field('タイトル','f1')+
+
+      field(
+        'タイトル',
+        'f1'
+      )
+
+      +
+
       `
-      <div class="field">
-        <label>内容</label>
-        <textarea id="f2" rows="5"></textarea>
-      </div>
-      `+
-      field('日付','f3','date');
+
+        <div class="field">
+
+          <label>
+            内容
+          </label>
+
+          <textarea
+            id="f2"
+            rows="5"
+          ></textarea>
+
+        </div>
+
+      `
+
+      +
+
+      field(
+        '日付',
+        'f3',
+        'date'
+      );
+
   }
+
 
   html += `
-    <button class="primary full"
-      onclick="saveNewRow('${table}')">
+
+    <button
+      class="primary full"
+      onclick="saveNewRow('${table}')"
+    >
       保存
     </button>
+
   `;
 
+
   openModal(html);
+
 }
+
+
+/* ============================= */
+/* SAVE NEW ROW */
+/* ============================= */
 
 async function saveNewRow(table){
-  let row = {trip_id:activeTripId};
 
-  if(table==='itinerary'){
-    row.event_date=$('f1').value||null;
-    row.event_time=$('f2').value||null;
-    row.title=$('f3').value;
-    row.place=$('f4').value;
-    row.note=$('f5').value;
+  let row = {
+    trip_id:
+      activeTripId
+  };
+
+
+  if(
+    table ===
+    'itinerary'
+  ){
+
+    row.event_date =
+      $('f1').value || null;
+
+    row.event_time =
+      $('f2').value || null;
+
+    row.title =
+      $('f3').value;
+
+    row.place =
+      $('f4').value;
+
+    row.note =
+      $('f5').value;
+
   }
 
-  if(table==='bookings'){
-    row.type=$('f1').value||'other';
-    row.title=$('f2').value;
-    row.provider=$('f3').value;
-    row.reservation_code=$('f4').value;
-    row.price=Number($('f5').value||0);
-    row.status=$('f6').value||'予約済み';
+
+  if(
+    table ===
+    'bookings'
+  ){
+
+    row.type =
+      $('f1').value ||
+      'other';
+
+    row.title =
+      $('f2').value;
+
+    row.provider =
+      $('f3').value;
+
+    row.reservation_code =
+      $('f4').value;
+
+    row.price =
+      Number(
+        $('f5').value ||
+        0
+      );
+
+    row.status =
+      $('f6').value ||
+      '予約済み';
+
   }
 
-  if(table==='expenses'){
-    row.expense_date=$('f1').value||null;
-    row.category=$('f2').value||'その他';
-    row.title=$('f3').value;
-    row.amount=Number($('f4').value||0);
+
+  if(
+    table ===
+    'expenses'
+  ){
+
+    row.expense_date =
+      $('f1').value ||
+      null;
+
+    row.category =
+      $('f2').value ||
+      'その他';
+
+    row.title =
+      $('f3').value;
+
+    row.amount =
+      Number(
+        $('f4').value ||
+        0
+      );
+
   }
 
-  if(table==='packing'){
-    row.title=$('f1').value;
-    row.category=$('f2').value||'その他';
+
+  if(
+    table ===
+    'packing'
+  ){
+
+    row.title =
+      $('f1').value;
+
+    row.category =
+      $('f2').value ||
+      'その他';
+
   }
 
-  if(table==='notes'){
-    row.title=$('f1').value;
-    row.body=$('f2').value;
-    row.note_date=$('f3').value||null;
+
+  if(
+    table ===
+    'notes'
+  ){
+
+    row.title =
+      $('f1').value;
+
+    row.body =
+      $('f2').value;
+
+    row.note_date =
+      $('f3').value ||
+      null;
+
   }
 
-  const {error} = await client.from(table).insert(row);
+
+  const {
+    error
+  } =
+    await client
+      .from(table)
+      .insert(row);
+
 
   if(error){
-    alert('保存できませんでした。');
+
     console.error(error);
+
+    alert(
+      '保存できませんでした。'
+    );
+
     return;
+
   }
+
 
   closeModal();
+
   setView(table);
+
 }
 
-async function deleteRow(table,id){
-  if(!confirm('削除しますか？')) return;
 
-  const {error} = await client
-    .from(table)
-    .delete()
-    .eq('id',id);
+/* ============================= */
+/* DELETE ROW */
+/* ============================= */
 
-  if(error){
-    alert('削除できませんでした。');
-    console.error(error);
+async function deleteRow(
+  table,
+  id
+){
+
+  if(
+    !confirm(
+      '削除しますか？'
+    )
+  ){
+
     return;
+
   }
 
+
+  const {
+    error
+  } =
+    await client
+      .from(table)
+      .delete()
+      .eq(
+        'id',
+        id
+      );
+
+
+  if(error){
+
+    console.error(error);
+
+    alert(
+      '削除できませんでした。'
+    );
+
+    return;
+
+  }
+
+
   setView(table);
+
 }
+
+
+/* ============================= */
+/* TRIP MANAGER */
+/* ============================= */
 
 function openTripManager(){
+
   let html = `
+
     <div class="modal-head">
-      <h3>旅行一覧</h3>
-      <button class="icon-btn" onclick="closeModal()">×</button>
+
+      <h3>
+        旅行一覧
+      </h3>
+
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
     </div>
 
-    ${trips.map(t=>`
-      <div class="member">
-        <div class="row between">
-          <div>
-            <div class="item-title">${esc(t.title)}</div>
-            <div class="muted">${esc(t.start_date||'')} 〜 ${esc(t.end_date||'')}</div>
-          </div>
-          <button class="secondary"
-            onclick="selectTripFromModal('${t.id}')">
-            開く
-          </button>
-        </div>
-      </div>
-    `).join('')}
-
-    <button class="primary full" onclick="openNewTrip()">
-      ＋ 新しい旅行
-    </button>
   `;
 
+
+  if(
+    profile?.is_admin
+  ){
+
+    html += `
+
+      <div class="admin-note">
+        管理者のため、すべてのユーザーの旅行が表示されています。
+      </div>
+
+    `;
+
+  }
+
+
+  html +=
+
+    trips.map(
+      t => `
+
+        <div class="member">
+
+          <div class="row between">
+
+            <div>
+
+              <div class="item-title">
+                ${esc(t.title)}
+              </div>
+
+              <div class="muted">
+                ${esc(t.start_date || '')}
+                〜
+                ${esc(t.end_date || '')}
+              </div>
+
+            </div>
+
+            <button
+              class="secondary"
+              onclick="selectTripFromModal('${t.id}')"
+            >
+              開く
+            </button>
+
+          </div>
+
+        </div>
+
+      `
+    ).join('');
+
+
+  html += `
+
+    <button
+      class="primary full"
+      onclick="openNewTrip()"
+    >
+      ＋ 新しい旅行
+    </button>
+
+  `;
+
+
   openModal(html);
+
 }
+
 
 async function selectTripFromModal(id){
-  activeTripId=id;
+
+  activeTripId =
+    id;
+
   renderTripSelector();
+
   closeModal();
-  currentView='home';
+
+  currentView =
+    'home';
+
   await loadActiveTrip();
+
 }
+
+
+/* ============================= */
+/* NEW TRIP */
+/* ============================= */
 
 function openNewTrip(){
+
   closeModal();
 
+
   openModal(`
+
     <div class="modal-head">
-      <h3>新しい旅行</h3>
-      <button class="icon-btn" onclick="closeModal()">×</button>
+
+      <h3>
+        新しい旅行
+      </h3>
+
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
     </div>
 
-    ${field('旅行名','ntTitle')}
-    ${field('開始日','ntStart','date')}
-    ${field('終了日','ntEnd','date')}
-    ${field('行き先','ntCities')}
-    ${field('予算','ntBudget','number')}
-    ${field('通貨','ntCurrency','text','EUR')}
+    ${field(
+      '旅行名',
+      'ntTitle'
+    )}
 
-    <button class="primary full" onclick="createTrip()">
+    ${field(
+      '開始日',
+      'ntStart',
+      'date'
+    )}
+
+    ${field(
+      '終了日',
+      'ntEnd',
+      'date'
+    )}
+
+    ${field(
+      '行き先',
+      'ntCities'
+    )}
+
+    ${field(
+      '予算',
+      'ntBudget',
+      'number'
+    )}
+
+    ${field(
+      '通貨',
+      'ntCurrency',
+      'text',
+      'EUR'
+    )}
+
+    <button
+      class="primary full"
+      onclick="createTrip()"
+    >
       作成
     </button>
+
   `);
+
 }
+
 
 async function createTrip(){
+
   const row = {
-    owner_id:me.id,
-    title:$('ntTitle').value || '新しい旅行',
-    start_date:$('ntStart').value || null,
-    end_date:$('ntEnd').value || null,
-    cities:$('ntCities').value || '',
-    budget:Number($('ntBudget').value||0),
-    currency:$('ntCurrency').value || 'EUR'
+
+    owner_id:
+      me.id,
+
+    title:
+      $('ntTitle').value
+      ||
+      '新しい旅行',
+
+    start_date:
+      $('ntStart').value
+      ||
+      null,
+
+    end_date:
+      $('ntEnd').value
+      ||
+      null,
+
+    cities:
+      $('ntCities').value
+      ||
+      '',
+
+    budget:
+      Number(
+        $('ntBudget').value
+        ||
+        0
+      ),
+
+    currency:
+      $('ntCurrency').value
+      ||
+      'EUR'
+
   };
 
-  const {data,error} = await client
-    .from('trips')
-    .insert(row)
-    .select()
-    .single();
+
+  const {
+    data,
+    error
+  } =
+    await client
+      .from('trips')
+      .insert(row)
+      .select()
+      .single();
+
 
   if(error){
-    alert('旅行を作成できませんでした。');
+
     console.error(error);
+
+    alert(
+      '旅行を作成できませんでした。'
+    );
+
     return;
+
   }
 
+
   closeModal();
-  activeTripId=data.id;
+
+  activeTripId =
+    data.id;
+
   await loadTrips();
+
 }
+
+
+/* ============================= */
+/* EDIT TRIP */
+/* ============================= */
 
 function openTripEdit(){
-  if(!canEdit()) return;
+
+  if(
+    !canEdit()
+  ){
+
+    return;
+
+  }
+
 
   openModal(`
+
     <div class="modal-head">
-      <h3>旅行を編集</h3>
-      <button class="icon-btn" onclick="closeModal()">×</button>
+
+      <h3>
+        旅行を編集
+      </h3>
+
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
     </div>
 
-    ${field('旅行名','etTitle','text',activeTrip.title)}
-    ${field('開始日','etStart','date',activeTrip.start_date||'')}
-    ${field('終了日','etEnd','date',activeTrip.end_date||'')}
-    ${field('行き先','etCities','text',activeTrip.cities||'')}
-    ${field('予算','etBudget','number',activeTrip.budget||0)}
-    ${field('通貨','etCurrency','text',activeTrip.currency||'EUR')}
+    ${field(
+      '旅行名',
+      'etTitle',
+      'text',
+      activeTrip.title
+    )}
 
-    <button class="primary full" onclick="saveTripEdit()">
+    ${field(
+      '開始日',
+      'etStart',
+      'date',
+      activeTrip.start_date
+      ||
+      ''
+    )}
+
+    ${field(
+      '終了日',
+      'etEnd',
+      'date',
+      activeTrip.end_date
+      ||
+      ''
+    )}
+
+    ${field(
+      '行き先',
+      'etCities',
+      'text',
+      activeTrip.cities
+      ||
+      ''
+    )}
+
+    ${field(
+      '予算',
+      'etBudget',
+      'number',
+      activeTrip.budget
+      ||
+      0
+    )}
+
+    ${field(
+      '通貨',
+      'etCurrency',
+      'text',
+      activeTrip.currency
+      ||
+      'EUR'
+    )}
+
+    <button
+      class="primary full"
+      onclick="saveTripEdit()"
+    >
       保存
     </button>
+
   `);
+
 }
+
 
 async function saveTripEdit(){
+
   const changes = {
-    title:$('etTitle').value,
-    start_date:$('etStart').value||null,
-    end_date:$('etEnd').value||null,
-    cities:$('etCities').value,
-    budget:Number($('etBudget').value||0),
-    currency:$('etCurrency').value||'EUR',
-    updated_at:new Date().toISOString()
+
+    title:
+      $('etTitle').value
+      ||
+      '新しい旅行',
+
+    start_date:
+      $('etStart').value
+      ||
+      null,
+
+    end_date:
+      $('etEnd').value
+      ||
+      null,
+
+    cities:
+      $('etCities').value
+      ||
+      '',
+
+    budget:
+      Number(
+        $('etBudget').value
+        ||
+        0
+      ),
+
+    currency:
+      $('etCurrency').value
+      ||
+      'EUR',
+
+    updated_at:
+      new Date().toISOString()
+
   };
 
-  const {error} = await client
-    .from('trips')
-    .update(changes)
-    .eq('id',activeTripId);
+
+  const {
+    error
+  } =
+    await client
+      .from('trips')
+      .update(changes)
+      .eq(
+        'id',
+        activeTripId
+      );
+
 
   if(error){
-    alert('保存できませんでした。');
+
     console.error(error);
+
+    alert(
+      '保存できませんでした。'
+    );
+
     return;
+
   }
+
 
   closeModal();
+
   await loadTrips();
+
 }
 
-async function openSettings(){
-  if(!activeTrip) return;
 
-  if(!isOwner()){
-    openModal(`
-      <div class="modal-head">
-        <h3>旅行設定</h3>
-        <button class="icon-btn" onclick="closeModal()">×</button>
-      </div>
-      <div class="card">
-        この旅行の共有設定は管理者または旅行の所有者だけ変更できます。
-      </div>
-    `);
+/* ============================= */
+/* SETTINGS */
+/* ============================= */
+
+async function openSettings(){
+
+  if(
+    !activeTrip
+  ){
+
     return;
+
   }
 
-  const {data:members,error} = await client
-    .from('trip_members')
-    .select('*')
-    .eq('trip_id',activeTripId);
+
+  /*
+   * 共有相手の管理は管理者が行う。
+   * 一般ユーザーの旅行所有者は
+   * 自分の旅行情報の編集だけ可能。
+   */
+
+  if(
+    !profile.is_admin
+  ){
+
+    openModal(`
+
+      <div class="modal-head">
+
+        <h3>
+          旅行設定
+        </h3>
+
+        <button
+          class="icon-btn"
+          onclick="closeModal()"
+        >
+          ×
+        </button>
+
+      </div>
+
+      ${
+        isActualOwner()
+        ? `
+
+          <button
+            class="primary full"
+            onclick="openTripEdit()"
+          >
+            旅行情報を編集
+          </button>
+
+          <div
+            class="muted"
+            style="margin-top:14px"
+          >
+            共有相手の追加・変更はTripNote管理者が行います。
+          </div>
+
+        `
+        : `
+
+          <div class="card">
+            この旅行は共有された旅行です。
+          </div>
+
+        `
+      }
+
+    `);
+
+    return;
+
+  }
+
+
+  const {
+    data:members,
+    error
+  } =
+    await client
+      .from('trip_members')
+      .select('*')
+      .eq(
+        'trip_id',
+        activeTripId
+      );
+
 
   if(error){
+
     console.error(error);
+
+    alert(
+      '共有設定を取得できませんでした。'
+    );
+
+    return;
+
   }
 
+
+  const memberProfiles = [];
+
+
+  for(
+    const member of
+    members || []
+  ){
+
+    const {
+      data:p
+    } =
+      await client
+        .from('profiles')
+        .select(
+          'id,name,email'
+        )
+        .eq(
+          'id',
+          member.user_id
+        )
+        .maybeSingle();
+
+
+    memberProfiles.push({
+
+      ...member,
+
+      profile:
+        p || null
+
+    });
+
+  }
+
+
   openModal(`
+
     <div class="modal-head">
-      <h3>旅行設定</h3>
-      <button class="icon-btn" onclick="closeModal()">×</button>
+
+      <h3>
+        旅行設定
+      </h3>
+
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
     </div>
 
-    <button class="secondary full" style="width:100%;margin-bottom:10px"
-      onclick="openTripEdit()">
+    <button
+      class="secondary"
+      style="width:100%;margin-bottom:10px"
+      onclick="openTripEdit()"
+    >
       旅行情報を編集
     </button>
 
-    <button class="secondary full" style="width:100%;margin-bottom:10px"
-      onclick="openShareAdd()">
+    <button
+      class="primary"
+      style="width:100%;margin-bottom:18px"
+      onclick="openShareAdd()"
+    >
       ＋ 共有相手を追加
     </button>
 
-    <h3>共有中</h3>
+    <h3>
+      共有中
+    </h3>
 
     ${
-      (members||[]).length
-      ? members.map(m=>`
-        <div class="member">
-          <div class="small">${esc(m.user_id)}</div>
+      memberProfiles.length
+      ?
 
-          <div class="member-grid">
-            <div>
-              <label class="small">権限</label>
-              <select id="role-${m.id}">
-                <option value="viewer" ${m.role==='viewer'?'selected':''}>閲覧のみ</option>
-                <option value="editor" ${m.role==='editor'?'selected':''}>編集可能</option>
-              </select>
+      memberProfiles.map(
+        m => `
+
+          <div class="member">
+
+            <div class="member-name">
+              ${esc(
+                m.profile?.name
+                ||
+                'ユーザー'
+              )}
             </div>
 
-            <div>
-              <label class="small">費用</label>
-              <select id="expense-${m.id}">
-                <option value="false" ${!m.can_view_expenses?'selected':''}>非公開</option>
-                <option value="true" ${m.can_view_expenses?'selected':''}>公開</option>
-              </select>
+            <div class="member-email">
+              ${esc(
+                m.profile?.email
+                ||
+                ''
+              )}
             </div>
+
+            <div class="member-grid">
+
+              <div>
+
+                <div class="small">
+                  権限
+                </div>
+
+                <select
+                  id="role-${m.id}"
+                >
+
+                  <option
+                    value="viewer"
+                    ${m.role==='viewer'?'selected':''}
+                  >
+                    閲覧のみ
+                  </option>
+
+                  <option
+                    value="editor"
+                    ${m.role==='editor'?'selected':''}
+                  >
+                    編集可能
+                  </option>
+
+                </select>
+
+              </div>
+
+              <div>
+
+                <div class="small">
+                  費用明細
+                </div>
+
+                <select
+                  id="expense-${m.id}"
+                >
+
+                  <option
+                    value="false"
+                    ${!m.can_view_expenses?'selected':''}
+                  >
+                    見せない
+                  </option>
+
+                  <option
+                    value="true"
+                    ${m.can_view_expenses?'selected':''}
+                  >
+                    見せる
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+            <div
+              style="margin-top:8px"
+            >
+
+              <div class="small">
+                メモ
+              </div>
+
+              <select
+                id="notes-${m.id}"
+                style="
+                  width:100%;
+                  padding:9px;
+                  border:1px solid #ddd;
+                  border-radius:10px;
+                  background:white;
+                "
+              >
+
+                <option
+                  value="false"
+                  ${!m.can_view_notes?'selected':''}
+                >
+                  見せない
+                </option>
+
+                <option
+                  value="true"
+                  ${m.can_view_notes?'selected':''}
+                >
+                  見せる
+                </option>
+
+              </select>
+
+            </div>
+
+            <div
+              class="row"
+              style="margin-top:12px"
+            >
+
+              <button
+                class="secondary"
+                onclick="saveMember('${m.id}')"
+              >
+                保存
+              </button>
+
+              <button
+                class="danger"
+                onclick="removeMember('${m.id}')"
+              >
+                共有解除
+              </button>
+
+            </div>
+
           </div>
 
-          <div class="field" style="margin-top:8px">
-            <label>メモ</label>
-            <select id="notes-${m.id}">
-              <option value="false" ${!m.can_view_notes?'selected':''}>非公開</option>
-              <option value="true" ${m.can_view_notes?'selected':''}>公開</option>
-            </select>
-          </div>
+        `
+      ).join('')
 
-          <div class="row">
-            <button class="secondary"
-              onclick="saveMember('${m.id}')">
-              保存
-            </button>
+      :
 
-            <button class="danger"
-              onclick="removeMember('${m.id}')">
-              共有解除
-            </button>
-          </div>
+      `
+
+        <div class="muted">
+          まだ誰にも共有していません。
         </div>
-      `).join('')
-      : `<div class="muted">まだ誰にも共有していません。</div>`
+
+      `
     }
+
   `);
+
 }
+
+
+/* ============================= */
+/* ADD SHARE */
+/* ============================= */
 
 function openShareAdd(){
+
+  if(
+    !profile?.is_admin
+  ){
+
+    return;
+
+  }
+
+
   openModal(`
+
     <div class="modal-head">
-      <h3>共有相手を追加</h3>
-      <button class="icon-btn" onclick="closeModal()">×</button>
+
+      <h3>
+        共有相手を追加
+      </h3>
+
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
     </div>
 
     <div class="field">
-      <label>相手のメールアドレス</label>
-      <input id="shareEmail" type="email">
+
+      <label>
+        相手のメールアドレス
+      </label>
+
+      <input
+        id="shareEmail"
+        type="email"
+        placeholder="example@gmail.com"
+      >
+
     </div>
 
     <div class="field">
-      <label>権限</label>
-      <select id="shareRole">
-        <option value="viewer">閲覧のみ</option>
-        <option value="editor">編集可能</option>
+
+      <label>
+        権限
+      </label>
+
+      <select
+        id="shareRole"
+      >
+
+        <option value="viewer">
+          閲覧のみ
+        </option>
+
+        <option value="editor">
+          編集可能
+        </option>
+
       </select>
+
     </div>
 
     <div class="field">
-      <label>費用</label>
-      <select id="shareExpenses">
-        <option value="false">見せない</option>
-        <option value="true">見せる</option>
+
+      <label>
+        費用明細
+      </label>
+
+      <select
+        id="shareExpenses"
+      >
+
+        <option value="false">
+          見せない
+        </option>
+
+        <option value="true">
+          見せる
+        </option>
+
       </select>
+
     </div>
 
     <div class="field">
-      <label>メモ</label>
-      <select id="shareNotes">
-        <option value="false">見せない</option>
-        <option value="true">見せる</option>
+
+      <label>
+        メモ
+      </label>
+
+      <select
+        id="shareNotes"
+      >
+
+        <option value="false">
+          見せない
+        </option>
+
+        <option value="true">
+          見せる
+        </option>
+
       </select>
+
     </div>
 
-    <button class="primary full" onclick="addShareMember()">
+    <div
+      class="muted"
+      style="
+        margin-bottom:14px;
+        line-height:1.6;
+      "
+    >
+      旅行の総予算は共有相手にも表示されます。
+      「費用明細」は実際に使った金額の一覧を見せるかどうかの設定です。
+    </div>
+
+    <button
+      class="primary full"
+      onclick="addShareMember()"
+    >
       共有する
     </button>
+
   `);
+
 }
+
+
+/* ============================= */
+/* SAVE SHARE */
+/* ============================= */
 
 async function addShareMember(){
-  const email=$('shareEmail').value.trim().toLowerCase();
 
-  const {data:userProfile,error:pErr} = await client
-    .from('profiles')
-    .select('id,email,name')
-    .eq('email',email)
-    .maybeSingle();
+  if(
+    !profile?.is_admin
+  ){
 
-  if(pErr || !userProfile){
-    alert('そのメールアドレスのTripNoteユーザーが見つかりません。先にユーザー登録してください。');
     return;
+
   }
 
-  if(userProfile.id===me.id){
-    alert('自分自身を共有相手には追加できません。');
+
+  const email =
+    $('shareEmail')
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  if(!email){
+
+    alert(
+      'メールアドレスを入力してください。'
+    );
+
     return;
+
   }
+
+
+  const {
+    data:userProfile,
+    error:pErr
+  } =
+    await client
+      .from('profiles')
+      .select(
+        'id,email,name'
+      )
+      .eq(
+        'email',
+        email
+      )
+      .maybeSingle();
+
+
+  if(
+    pErr
+    ||
+    !userProfile
+  ){
+
+    console.error(pErr);
+
+    alert(
+      'そのメールアドレスのTripNoteユーザーが見つかりません。相手に先に新規登録してもらってください。'
+    );
+
+    return;
+
+  }
+
+
+  if(
+    userProfile.id ===
+    activeTrip.owner_id
+  ){
+
+    alert(
+      'この人はこの旅行の所有者です。'
+    );
+
+    return;
+
+  }
+
 
   const row = {
-    trip_id:activeTripId,
-    user_id:userProfile.id,
-    role:$('shareRole').value,
-    can_view_expenses:$('shareExpenses').value==='true',
-    can_view_notes:$('shareNotes').value==='true'
+
+    trip_id:
+      activeTripId,
+
+    user_id:
+      userProfile.id,
+
+    role:
+      $('shareRole').value,
+
+    can_view_expenses:
+      $('shareExpenses').value
+      ===
+      'true',
+
+    can_view_notes:
+      $('shareNotes').value
+      ===
+      'true'
+
   };
 
-  const {error} = await client
-    .from('trip_members')
-    .upsert(row,{
-      onConflict:'trip_id,user_id'
-    });
+
+  const {
+    error
+  } =
+    await client
+      .from('trip_members')
+      .upsert(
+        row,
+        {
+          onConflict:
+            'trip_id,user_id'
+        }
+      );
+
 
   if(error){
-    alert('共有設定を保存できませんでした。');
+
     console.error(error);
+
+    alert(
+      '共有設定を保存できませんでした。'
+    );
+
     return;
+
   }
 
+
   closeModal();
-  alert(`${userProfile.name || userProfile.email}さんに共有しました。`);
+
+
+  alert(
+    `${
+      userProfile.name
+      ||
+      userProfile.email
+    }さんに共有しました。`
+  );
+
 }
+
+
+/* ============================= */
+/* UPDATE MEMBER */
+/* ============================= */
 
 async function saveMember(id){
-  const changes={
-    role:$(`role-${id}`).value,
-    can_view_expenses:$(`expense-${id}`).value==='true',
-    can_view_notes:$(`notes-${id}`).value==='true'
+
+  if(
+    !profile?.is_admin
+  ){
+
+    return;
+
+  }
+
+
+  const changes = {
+
+    role:
+      $(`role-${id}`).value,
+
+    can_view_expenses:
+      $(`expense-${id}`).value
+      ===
+      'true',
+
+    can_view_notes:
+      $(`notes-${id}`).value
+      ===
+      'true'
+
   };
 
-  const {error}=await client
-    .from('trip_members')
-    .update(changes)
-    .eq('id',id);
+
+  const {
+    error
+  } =
+    await client
+      .from('trip_members')
+      .update(changes)
+      .eq(
+        'id',
+        id
+      );
+
 
   if(error){
-    alert('保存できませんでした。');
+
     console.error(error);
+
+    alert(
+      '保存できませんでした。'
+    );
+
     return;
+
   }
 
-  alert('共有設定を保存しました。');
+
+  alert(
+    '共有設定を保存しました。'
+  );
+
 }
+
+
+/* ============================= */
+/* REMOVE MEMBER */
+/* ============================= */
 
 async function removeMember(id){
-  if(!confirm('この人との共有を解除しますか？')) return;
 
-  const {error}=await client
-    .from('trip_members')
-    .delete()
-    .eq('id',id);
+  if(
+    !profile?.is_admin
+  ){
 
-  if(error){
-    alert('共有解除できませんでした。');
-    console.error(error);
     return;
+
   }
 
+
+  if(
+    !confirm(
+      'この人との共有を解除しますか？'
+    )
+  ){
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await client
+      .from('trip_members')
+      .delete()
+      .eq(
+        'id',
+        id
+      );
+
+
+  if(error){
+
+    console.error(error);
+
+    alert(
+      '共有解除できませんでした。'
+    );
+
+    return;
+
+  }
+
+
   closeModal();
-  openSettings();
+
+  await openSettings();
+
 }
+
+
+/* ============================= */
+/* START */
+/* ============================= */
 
 init();
 
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('/sw.js').catch(console.error);
-  });
+
+if(
+  'serviceWorker'
+  in navigator
+){
+
+  window.addEventListener(
+    'load',
+    ()=>{
+
+      navigator
+        .serviceWorker
+        .register('/sw.js')
+        .catch(
+          console.error
+        );
+
+    }
+  );
+
 }
+
 </script>
 
 </body>

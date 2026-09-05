@@ -1,10 +1,739 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="TripNote">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>TripNote</title>
+
+<style>
+:root{
+  --bg:#f6f7f9;
+  --card:#fff;
+  --text:#15171a;
+  --muted:#7b818a;
+  --line:#e8ebef;
+  --accent:#1f6feb;
+  --soft:#eaf2ff;
+  --ok:#128a4b;
+  --warn:#b26b00;
+  --danger:#d93025;
+  --shadow:0 8px 28px rgba(20,24,31,.06)
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI",Meiryo,sans-serif
+}
+
+button,input,select,textarea{font:inherit}
+
+.app{
+  max-width:760px;
+  margin:auto;
+  padding:calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 96px)
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:4px 2px 14px
+}
+
+.brand{
+  font-size:24px;
+  font-weight:850
+}
+
+.iconbtn{
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:var(--shadow);
+  font-size:20px
+}
+
+.hero,.card{
+  background:#fff;
+  border:1px solid var(--line);
+  box-shadow:var(--shadow)
+}
+
+.hero{
+  border-radius:26px;
+  padding:20px;
+  background:linear-gradient(145deg,#fff,#f8fbff)
+}
+
+.card{
+  border-radius:20px
+}
+
+.eyebrow{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:800;
+  letter-spacing:.08em
+}
+
+.title{
+  font-size:29px;
+  font-weight:850;
+  line-height:1.15;
+  margin:6px 0 8px
+}
+
+.meta{
+  font-size:14px;
+  color:var(--muted);
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 12px
+}
+
+.count{
+  display:flex;
+  align-items:end;
+  gap:10px;
+  margin-top:18px
+}
+
+.countnum{
+  font-size:44px;
+  font-weight:900;
+  line-height:.95
+}
+
+.countlabel{
+  font-size:14px;
+  color:var(--muted);
+  padding-bottom:5px
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-top:14px
+}
+
+.stat{
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:15px;
+  background:#fff
+}
+
+.sl{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:800
+}
+
+.sv{
+  font-size:22px;
+  font-weight:850;
+  margin-top:5px
+}
+
+.progress{
+  height:8px;
+  background:#edf0f4;
+  border-radius:99px;
+  overflow:hidden;
+  margin-top:10px
+}
+
+.progress>div{
+  height:100%;
+  background:var(--accent);
+  border-radius:99px
+}
+
+.sec{margin-top:18px}
+
+.sech{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:0 2px 10px
+}
+
+.sect{
+  font-size:17px;
+  font-weight:850
+}
+
+.link{
+  border:0;
+  background:transparent;
+  color:var(--accent);
+  font-weight:800
+}
+
+.timeline{overflow:hidden}
+
+.event{
+  display:grid;
+  grid-template-columns:62px 32px 1fr;
+  gap:6px;
+  padding:14px 16px
+}
+
+.event+.event,
+.item+.item{
+  border-top:1px solid var(--line)
+}
+
+.time{
+  font-size:13px;
+  font-weight:850;
+  padding-top:3px
+}
+
+.eico{
+  width:28px;
+  height:28px;
+  border-radius:10px;
+  background:var(--soft);
+  display:grid;
+  place-items:center
+}
+
+.et{
+  font-size:15px;
+  font-weight:850
+}
+
+.es{
+  font-size:13px;
+  color:var(--muted);
+  margin-top:3px
+}
+
+.list{overflow:hidden}
+
+.item{
+  padding:15px 16px;
+  display:flex;
+  align-items:center;
+  gap:12px
+}
+
+.lico{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  background:#f2f5f8;
+  display:grid;
+  place-items:center;
+  font-size:20px
+}
+
+.main{
+  flex:1;
+  min-width:0
+}
+
+.it{
+  font-size:15px;
+  font-weight:850;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis
+}
+
+.is{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px
+}
+
+.amt{font-weight:850}
+
+.tag{
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:850;
+  background:#f0f2f5
+}
+
+.tag.ok{
+  background:#e8f7ef;
+  color:var(--ok)
+}
+
+.tag.wait{
+  background:#fff4df;
+  color:var(--warn)
+}
+
+.empty{
+  padding:28px;
+  text-align:center;
+  color:var(--muted);
+  font-size:14px
+}
+
+.view{display:none}
+.view.active{display:block}
+
+.day{
+  margin-top:10px;
+  overflow:hidden
+}
+
+.dayh{
+  padding:14px 16px;
+  background:#fbfcfd;
+  border-bottom:1px solid var(--line);
+  font-weight:850
+}
+
+.fab{
+  position:fixed;
+  right:max(18px,calc((100vw - 760px)/2 + 18px));
+  bottom:calc(env(safe-area-inset-bottom) + 84px);
+  width:56px;
+  height:56px;
+  border:0;
+  border-radius:18px;
+  background:var(--accent);
+  color:#fff;
+  font-size:28px;
+  box-shadow:0 10px 30px rgba(31,111,235,.28);
+  z-index:30
+}
+
+.nav{
+  position:fixed;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(100%,760px);
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  padding:8px 10px calc(env(safe-area-inset-bottom) + 8px);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(18px);
+  border-top:1px solid var(--line);
+  z-index:25
+}
+
+.nav button{
+  border:0;
+  background:transparent;
+  color:#8a9098;
+  padding:8px 2px;
+  font-size:11px;
+  font-weight:800
+}
+
+.nav .ico{
+  display:block;
+  font-size:20px;
+  margin-bottom:3px
+}
+
+.nav button.active{
+  color:var(--accent)
+}
+
+.sheet{
+  position:fixed;
+  inset:0;
+  background:rgba(15,17,20,.36);
+  display:none;
+  align-items:flex-end;
+  z-index:50
+}
+
+.sheet.open{display:flex}
+
+.panel{
+  width:min(100%,760px);
+  max-height:92vh;
+  margin:auto;
+  background:#fff;
+  border-radius:28px 28px 0 0;
+  padding:12px 18px calc(env(safe-area-inset-bottom) + 20px);
+  overflow:auto
+}
+
+.grab{
+  width:42px;
+  height:5px;
+  border-radius:99px;
+  background:#d9dde3;
+  margin:0 auto 14px
+}
+
+.sht{
+  font-size:20px;
+  font-weight:900;
+  margin-bottom:16px
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:7px
+}
+
+.full{grid-column:1/-1}
+
+label{
+  font-size:12px;
+  font-weight:850;
+  color:#525860
+}
+
+input,select,textarea{
+  width:100%;
+  border:1px solid #dfe3e8;
+  border-radius:14px;
+  padding:13px 14px;
+  background:#fff
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:18px
+}
+
+.btn{
+  flex:1;
+  border:0;
+  border-radius:15px;
+  padding:14px;
+  font-weight:850
+}
+
+.primary{
+  background:var(--accent);
+  color:#fff
+}
+
+.secondary{
+  background:#f1f3f6
+}
+
+.danger{
+  background:#fdeceb;
+  color:var(--danger)
+}
+
+.check{
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+
+.check input{
+  width:22px;
+  height:22px
+}
+
+.barwrap{padding:18px}
+
+.barrow{margin-bottom:15px}
+
+.bartop{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-bottom:7px
+}
+
+.track{
+  height:9px;
+  background:#edf0f4;
+  border-radius:99px;
+  overflow:hidden
+}
+
+.fill{
+  height:100%;
+  background:#77808c;
+  border-radius:99px
+}
+
+.small{font-size:12px}
+.muted{color:var(--muted)}
+
+.syncpill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:800;
+  color:var(--muted);
+  background:#fff;
+  border:1px solid var(--line);
+  padding:6px 9px;
+  border-radius:999px
+}
+
+.syncdot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#c7ccd3
+}
+
+.syncdot.ok{background:var(--ok)}
+.syncdot.busy{background:#f0a000}
+.syncdot.err{background:var(--danger)}
+
+@media(min-width:650px){
+  .stats{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="top">
+    <div>
+      <div class="brand">TripNote</div>
+
+      <div class="syncpill" id="syncStatus">
+        <span class="syncdot" id="syncDot"></span>
+        <span id="syncText">接続中…</span>
+      </div>
+    </div>
+
+    <button class="iconbtn" id="settingsBtn">⚙️</button>
+  </div>
+
+  <section id="homeView" class="view active"></section>
+  <section id="itineraryView" class="view"></section>
+  <section id="bookingView" class="view"></section>
+  <section id="expenseView" class="view"></section>
+  <section id="packingView" class="view"></section>
+  <section id="notesView" class="view"></section>
+
+</div>
+
+<button class="fab" id="fab">＋</button>
+
+<nav class="nav">
+
+<button data-view="home" class="active">
+<span class="ico">⌂</span>
+ホーム
+</button>
+
+<button data-view="itinerary">
+<span class="ico">🗓️</span>
+旅程
+</button>
+
+<button data-view="booking">
+<span class="ico">🎫</span>
+予約
+</button>
+
+<button data-view="expense">
+<span class="ico">¥</span>
+費用
+</button>
+
+<button data-view="packing">
+<span class="ico">✓</span>
+持ち物
+</button>
+
+<button data-view="notes">
+<span class="ico">📝</span>
+メモ
+</button>
+
+</nav>
+
+<div class="sheet" id="sheet">
+  <div class="panel">
+    <div class="grab"></div>
+    <div id="sheetContent"></div>
+  </div>
+</div>
+
 <script>
+
+const KEY='tripnote_data_v1';
+
+const defaults={
+trip:{
+title:'イタリア旅行 2026',
+start:'2026-09-20',
+end:'2026-09-28',
+cities:'ローマ・フィレンツェ・ヴェネツィア・ミラノ',
+budget:350000,
+currency:'EUR'
+},
+
+itinerary:[
+{
+id:1,
+date:'2026-09-20',
+time:'10:30',
+type:'flight',
+title:'羽田 → ローマ',
+place:'空港',
+note:'出発3時間前を目安に空港へ'
+},
+{
+id:2,
+date:'2026-09-20',
+time:'18:00',
+type:'hotel',
+title:'ホテル チェックイン',
+place:'Rome',
+note:''
+},
+{
+id:3,
+date:'2026-09-21',
+time:'09:30',
+type:'sight',
+title:'コロッセオ',
+place:'Rome',
+note:'予約時間を確認'
+}
+],
+
+bookings:[
+{
+id:1,
+type:'flight',
+title:'往復航空券',
+provider:'航空会社',
+code:'ABC123',
+price:160000,
+paid:true,
+status:'予約済み',
+link:''
+},
+{
+id:2,
+type:'hotel',
+title:'ローマ ホテル',
+provider:'Booking',
+code:'HTL001',
+price:52000,
+paid:true,
+status:'予約済み',
+link:''
+}
+],
+
+expenses:[
+{
+id:1,
+date:'2026-08-01',
+category:'航空券',
+title:'往復航空券',
+amount:160000,
+paid:true
+},
+{
+id:2,
+date:'2026-08-05',
+category:'ホテル',
+title:'ローマ ホテル',
+amount:52000,
+paid:true
+}
+],
+
+packing:[
+{
+id:1,
+title:'パスポート',
+checked:false,
+category:'重要'
+},
+{
+id:2,
+title:'クレジットカード',
+checked:false,
+category:'重要'
+},
+{
+id:3,
+title:'充電器・変換プラグ',
+checked:false,
+category:'電子機器'
+}
+],
+
+notes:[
+{
+id:1,
+title:'旅行前に確認',
+body:'海外旅行保険、eSIM、空港までの移動を確認',
+date:'2026-09-01'
+}
+]
+};
+
+function clone(x){
+  return JSON.parse(JSON.stringify(x));
+}
+
+function load(){
+  try{
+    return JSON.parse(localStorage.getItem(KEY)) || clone(defaults);
+  }catch(e){
+    return clone(defaults);
+  }
+}
+
+let data=load();
+
+
+/* =========================
+   同期設定
+========================= */
+
 const SYNC_CREDENTIALS_KEY='tripnote_sync_credentials_v2';
 
-const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
+const hashParams=
+new URLSearchParams(
+  location.hash.replace(/^#/,'')
+);
 
 function randomToken(bytes=18){
+
   const a=new Uint8Array(bytes);
+
   crypto.getRandomValues(a);
 
   return Array.from(
@@ -14,17 +743,27 @@ function randomToken(bytes=18){
 }
 
 function loadSavedCredentials(){
+
   try{
+
     return JSON.parse(
-      localStorage.getItem(SYNC_CREDENTIALS_KEY)
+      localStorage.getItem(
+        SYNC_CREDENTIALS_KEY
+      )
     ) || {};
+
   }catch(e){
+
     return {};
+
   }
+
 }
 
 function saveCredentials(tripId,key){
+
   try{
+
     localStorage.setItem(
       SYNC_CREDENTIALS_KEY,
       JSON.stringify({
@@ -32,27 +771,34 @@ function saveCredentials(tripId,key){
         key
       })
     );
+
   }catch(e){}
+
 }
 
 function isStandalone(){
+
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true
+    window.navigator.standalone===true
   );
+
 }
 
 function parseSharedLink(value){
+
   try{
 
-    const u=new URL(
-      String(value||'').trim(),
-      location.origin
-    );
+    const u=
+      new URL(
+        String(value||'').trim(),
+        location.origin
+      );
 
-    const p=new URLSearchParams(
-      u.hash.replace(/^#/,'')
-    );
+    const p=
+      new URLSearchParams(
+        u.hash.replace(/^#/,'')
+      );
 
     const trip=p.get('trip');
     const key=p.get('key');
@@ -61,15 +807,18 @@ function parseSharedLink(value){
       /^[a-f0-9]{16,64}$/i.test(trip||'') &&
       /^[a-f0-9]{32,128}$/i.test(key||'')
     ){
+
       return {
         tripId:trip,
         key:key
       };
+
     }
 
   }catch(e){}
 
   return null;
+
 }
 
 function connectWithSharedLink(){
@@ -95,6 +844,7 @@ https://trip-note-22.vercel.app/#trip=...&key=...`
     );
 
     return false;
+
   }
 
   saveCredentials(
@@ -112,18 +862,25 @@ https://trip-note-22.vercel.app/#trip=...&key=...`
   );
 
   return true;
+
 }
 
 
-const hashTrip=hashParams.get('trip');
-const hashKey=hashParams.get('key');
+const hashTrip=
+  hashParams.get('trip');
 
-let savedCredentials=loadSavedCredentials();
+const hashKey=
+  hashParams.get('key');
 
 
-/* Safariの共有URLから開いた場合 */
+let savedCredentials=
+  loadSavedCredentials();
 
-if(hashTrip && hashKey){
+
+if(
+  hashTrip &&
+  hashKey
+){
 
   saveCredentials(
     hashTrip,
@@ -133,7 +890,10 @@ if(hashTrip && hashKey){
 }
 
 
-/* ホーム画面アプリで初回起動した場合 */
+/*
+ホーム画面アプリで、
+まだ同期情報が無い場合
+*/
 
 if(
   isStandalone() &&
@@ -150,8 +910,6 @@ if(
 }
 
 
-/* 同期ID */
-
 let TRIP_ID=
   (
     hashTrip &&
@@ -162,8 +920,6 @@ let TRIP_ID=
   ||
   randomToken(8);
 
-
-/* 編集キー */
 
 let EDIT_KEY=
   (
@@ -183,15 +939,11 @@ let syncBusy=false;
 let saveTimer=null;
 
 
-/* この端末に同期情報を保存 */
-
 saveCredentials(
   TRIP_ID,
   EDIT_KEY
 );
 
-
-/* URLにtripとkeyが無ければ追加 */
 
 if(
   !hashTrip ||
@@ -215,10 +967,14 @@ if(
 function setSync(status,text){
 
   const d=
-    document.getElementById('syncDot');
+    document.getElementById(
+      'syncDot'
+    );
 
   const t=
-    document.getElementById('syncText');
+    document.getElementById(
+      'syncText'
+    );
 
   if(!d || !t){
     return;
@@ -228,6 +984,7 @@ function setSync(status,text){
     'syncdot '+(status||'');
 
   t.textContent=text;
+
 }
 
 
@@ -247,12 +1004,15 @@ function save(){
 
   localSave();
 
-  clearTimeout(saveTimer);
-
-  saveTimer=setTimeout(
-    ()=>cloudSave(),
-    250
+  clearTimeout(
+    saveTimer
   );
+
+  saveTimer=
+    setTimeout(
+      ()=>cloudSave(),
+      250
+    );
 
 }
 
@@ -297,7 +1057,6 @@ async function api(
 
   }
 
-
   return j;
 
 }
@@ -311,9 +1070,7 @@ async function cloudLoad(
     return;
   }
 
-
   syncBusy=true;
-
 
   if(!silent){
 
@@ -323,7 +1080,6 @@ async function cloudLoad(
     );
 
   }
-
 
   try{
 
@@ -371,7 +1127,6 @@ async function cloudLoad(
       '同期済み'
     );
 
-
   }catch(e){
 
     console.error(e);
@@ -404,15 +1159,12 @@ async function cloudSave(){
 
   }
 
-
   syncBusy=true;
-
 
   setSync(
     'busy',
     '保存中…'
   );
-
 
   try{
 
@@ -422,16 +1174,13 @@ async function cloudSave(){
         {data}
       );
 
-
     lastRemoteUpdatedAt=
       j.updatedAt;
-
 
     setSync(
       'ok',
       '同期済み'
     );
-
 
   }catch(e){
 
@@ -453,7 +1202,9 @@ async function cloudSave(){
 
 async function syncNow(){
 
-  await cloudLoad(false);
+  await cloudLoad(
+    false
+  );
 
 }
 
@@ -495,4 +1246,2312 @@ async function copyShareLink(){
   }
 
 }
+
+
+/* =========================
+   共通処理
+========================= */
+
+function esc(s){
+
+  return String(s??'')
+  .replace(
+    /[&<>"']/g,
+    m=>({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#039;'
+    }[m])
+  );
+
+}
+
+
+function yen(v){
+
+  return (
+    '¥'+
+    Number(v||0)
+    .toLocaleString('ja-JP')
+  );
+
+}
+
+
+function fmtDate(s){
+
+  if(!s)return '';
+
+  const d=
+    new Date(
+      s+'T00:00:00'
+    );
+
+  return (
+    `${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）`
+  );
+
+}
+
+
+function daysUntil(){
+
+  const n=new Date();
+
+  n.setHours(
+    0,0,0,0
+  );
+
+  const s=
+    new Date(
+      data.trip.start+
+      'T00:00:00'
+    );
+
+  return Math.ceil(
+    (s-n)/86400000
+  );
+
+}
+
+
+function typeIcon(t){
+
+  return {
+    flight:'✈️',
+    train:'🚆',
+    hotel:'🏨',
+    food:'🍽️',
+    sight:'📍',
+    transfer:'🚕',
+    other:'•'
+  }[t] || '•';
+
+}
+
+
+function expenseIcon(c){
+
+  return {
+    '航空券':'✈️',
+    'ホテル':'🏨',
+    '交通':'🚆',
+    '食事':'🍽️',
+    '観光':'🎟️',
+    '買い物':'🛍️',
+    'その他':'•'
+  }[c] || '¥';
+
+}
+
+
+function totalExpenses(){
+
+  return data.expenses
+  .reduce(
+    (a,b)=>
+      a+
+      Number(
+        b.amount||0
+      ),
+    0
+  );
+
+}
+
+
+function paidExpenses(){
+
+  return data.expenses
+  .filter(
+    x=>x.paid
+  )
+  .reduce(
+    (a,b)=>
+      a+
+      Number(
+        b.amount||0
+      ),
+    0
+  );
+
+}
+
+
+/* =========================
+   ホーム
+========================= */
+
+function renderHome(){
+
+  const t=data.trip;
+
+  const total=
+    totalExpenses();
+
+  const paid=
+    paidExpenses();
+
+  const remain=
+    Math.max(
+      0,
+      Number(t.budget||0)-total
+    );
+
+  const pct=
+    t.budget
+      ? Math.min(
+          100,
+          Math.round(
+            total/t.budget*100
+          )
+        )
+      : 0;
+
+  const up=
+    [...data.itinerary]
+    .sort(
+      (a,b)=>
+        (a.date+a.time)
+        .localeCompare(
+          b.date+b.time
+        )
+    )
+    .slice(
+      0,
+      4
+    );
+
+
+  homeView.innerHTML=`
+
+  <div class="hero">
+
+    <div class="eyebrow">
+      MY TRIP
+    </div>
+
+    <div class="title">
+      ${esc(t.title)}
+    </div>
+
+    <div class="meta">
+
+      <span>
+        ${fmtDate(t.start)}
+        -
+        ${fmtDate(t.end)}
+      </span>
+
+      <span>
+        📍 ${esc(t.cities||'')}
+      </span>
+
+    </div>
+
+
+    <div class="count">
+
+      <div class="countnum">
+        ${daysUntil()>=0
+          ?daysUntil()
+          :'—'}
+      </div>
+
+      <div class="countlabel">
+        ${daysUntil()>=0
+          ?'日後に出発'
+          :'旅行期間を設定してください'}
+      </div>
+
+    </div>
+
+
+    <div class="stats">
+
+      <div class="stat">
+        <div class="sl">
+          旅行予算
+        </div>
+        <div class="sv">
+          ${yen(t.budget)}
+        </div>
+      </div>
+
+      <div class="stat">
+        <div class="sl">
+          支出合計
+        </div>
+        <div class="sv">
+          ${yen(total)}
+        </div>
+      </div>
+
+      <div class="stat">
+        <div class="sl">
+          支払済み
+        </div>
+        <div class="sv">
+          ${yen(paid)}
+        </div>
+      </div>
+
+      <div class="stat">
+        <div class="sl">
+          残り予算
+        </div>
+        <div class="sv">
+          ${yen(remain)}
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="progress">
+      <div style="width:${pct}%">
+      </div>
+    </div>
+
+    <div class="small muted"
+         style="margin-top:7px">
+
+      予算使用率 ${pct}%
+
+    </div>
+
+  </div>
+
+
+  <div class="sec">
+
+    <div class="sech">
+
+      <div class="sect">
+        直近の予定
+      </div>
+
+      <button
+        class="link"
+        onclick="switchView('itinerary')">
+
+        すべて見る
+
+      </button>
+
+    </div>
+
+    <div class="card timeline">
+
+      ${
+      up.length
+      ?
+      up.map(
+        e=>`
+
+        <div class="event"
+             onclick="editItinerary(${e.id})">
+
+          <div class="time">
+            ${esc(e.time||'--:--')}
+          </div>
+
+          <div class="eico">
+            ${typeIcon(e.type)}
+          </div>
+
+          <div>
+
+            <div class="et">
+              ${esc(e.title)}
+            </div>
+
+            <div class="es">
+              ${fmtDate(e.date)}
+              ${e.place
+                ?' ・ '+esc(e.place)
+                :''}
+            </div>
+
+          </div>
+
+        </div>
+
+        `
+      ).join('')
+      :
+      '<div class="empty">予定を追加するとここに表示されます</div>'
+      }
+
+    </div>
+
+  </div>
+
+
+  <div class="sec">
+
+    <div class="sech">
+
+      <div class="sect">
+        予約状況
+      </div>
+
+      <button
+        class="link"
+        onclick="switchView('booking')">
+
+        管理する
+
+      </button>
+
+    </div>
+
+    <div class="card list">
+
+      ${
+      data.bookings
+      .slice(
+        0,
+        3
+      )
+      .map(
+        b=>`
+
+        <div class="item"
+             onclick="editBooking(${b.id})">
+
+          <div class="lico">
+            ${typeIcon(b.type)}
+          </div>
+
+          <div class="main">
+
+            <div class="it">
+              ${esc(b.title)}
+            </div>
+
+            <div class="is">
+              ${esc(b.provider||'')}
+              ${b.code
+                ?' ・ '+esc(b.code)
+                :''}
+            </div>
+
+          </div>
+
+          <span class="tag ${b.status==='予約済み'?'ok':'wait'}">
+            ${esc(b.status)}
+          </span>
+
+        </div>
+
+        `
+      ).join('')
+      ||
+      '<div class="empty">予約情報はまだありません</div>'
+      }
+
+    </div>
+
+  </div>
+  `;
+
+}
+
+
+/* =========================
+   旅程
+========================= */
+
+function renderItinerary(){
+
+  const by={};
+
+  [...data.itinerary]
+  .sort(
+    (a,b)=>
+      (a.date+a.time)
+      .localeCompare(
+        b.date+b.time
+      )
+  )
+  .forEach(
+    e=>
+      (by[e.date]??=[])
+      .push(e)
+  );
+
+
+  itineraryView.innerHTML=`
+
+  <div class="sech">
+
+    <div>
+
+      <div class="eyebrow">
+        ITINERARY
+      </div>
+
+      <div class="sect"
+           style="font-size:24px">
+
+        旅程
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  ${
+  Object.keys(by).length
+  ?
+  Object.entries(by)
+  .map(
+    ([d,a])=>`
+
+    <div class="card day">
+
+      <div class="dayh">
+        ${fmtDate(d)}
+      </div>
+
+      <div class="timeline">
+
+        ${
+        a.map(
+          e=>`
+
+          <div class="event"
+               onclick="editItinerary(${e.id})">
+
+            <div class="time">
+              ${esc(e.time||'--:--')}
+            </div>
+
+            <div class="eico">
+              ${typeIcon(e.type)}
+            </div>
+
+            <div>
+
+              <div class="et">
+                ${esc(e.title)}
+              </div>
+
+              <div class="es">
+
+                ${e.place
+                  ?esc(e.place)
+                  :''}
+
+                ${e.note
+                  ?' ・ '+esc(e.note)
+                  :''}
+
+              </div>
+
+            </div>
+
+          </div>
+
+          `
+        ).join('')
+        }
+
+      </div>
+
+    </div>
+
+    `
+  ).join('')
+  :
+  '<div class="card empty">＋から最初の予定を追加してください</div>'
+  }
+  `;
+
+}
+
+
+/* =========================
+   予約
+========================= */
+
+function renderBookings(){
+
+  bookingView.innerHTML=`
+
+  <div class="sech">
+
+    <div>
+
+      <div class="eyebrow">
+        BOOKINGS
+      </div>
+
+      <div class="sect"
+           style="font-size:24px">
+
+        予約
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card list">
+
+    ${
+    data.bookings.length
+    ?
+    data.bookings
+    .map(
+      b=>`
+
+      <div class="item"
+           onclick="editBooking(${b.id})">
+
+        <div class="lico">
+          ${typeIcon(b.type)}
+        </div>
+
+        <div class="main">
+
+          <div class="it">
+            ${esc(b.title)}
+          </div>
+
+          <div class="is">
+
+            ${esc(b.provider||'')}
+
+            ${b.code
+              ?' ・ '+esc(b.code)
+              :''}
+
+            ${b.price
+              ?' ・ '+yen(b.price)
+              :''}
+
+          </div>
+
+        </div>
+
+        <span class="tag ${b.status==='予約済み'?'ok':'wait'}">
+
+          ${esc(b.status)}
+
+        </span>
+
+      </div>
+
+      `
+    ).join('')
+    :
+    '<div class="empty">予約情報はまだありません</div>'
+    }
+
+  </div>
+  `;
+
+}
+
+
+/* =========================
+   費用
+========================= */
+
+function renderExpenses(){
+
+  const total=
+    totalExpenses();
+
+  const budget=
+    Number(
+      data.trip.budget||0
+    );
+
+  const cats={};
+
+  data.expenses.forEach(
+    x=>
+      cats[x.category]=
+        (cats[x.category]||0)+
+        Number(x.amount||0)
+  );
+
+
+  expenseView.innerHTML=`
+
+  <div class="sech">
+
+    <div>
+
+      <div class="eyebrow">
+        BUDGET
+      </div>
+
+      <div class="sect"
+           style="font-size:24px">
+
+        費用
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="hero">
+
+    <div class="sl">
+      支出合計
+    </div>
+
+    <div class="title"
+         style="margin-top:4px">
+
+      ${yen(total)}
+
+    </div>
+
+    <div class="muted small">
+
+      予算 ${yen(budget)}
+      ／
+      残り ${yen(Math.max(0,budget-total))}
+
+    </div>
+
+    <div class="progress">
+
+      <div style="width:${budget?Math.min(100,total/budget*100):0}%">
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="sec">
+
+    <div class="sect"
+         style="margin:0 2px 10px">
+
+      カテゴリ別
+
+    </div>
+
+    <div class="card barwrap">
+
+      ${
+      Object.keys(cats).length
+      ?
+      Object.entries(cats)
+      .map(
+        ([k,v])=>`
+
+        <div class="barrow">
+
+          <div class="bartop">
+
+            <span>
+              ${esc(k)}
+            </span>
+
+            <strong>
+              ${yen(v)}
+            </strong>
+
+          </div>
+
+          <div class="track">
+
+            <div
+              class="fill"
+              style="width:${total?Math.max(6,v/total*100):0}%">
+            </div>
+
+          </div>
+
+        </div>
+
+        `
+      ).join('')
+      :
+      '<div class="empty">費用を追加すると内訳が表示されます</div>'
+      }
+
+    </div>
+
+  </div>
+
+
+  <div class="sec">
+
+    <div class="sect"
+         style="margin:0 2px 10px">
+
+      支出一覧
+
+    </div>
+
+    <div class="card list">
+
+      ${
+      data.expenses.length
+      ?
+      data.expenses
+      .slice()
+      .sort(
+        (a,b)=>
+          b.date.localeCompare(
+            a.date
+          )
+      )
+      .map(
+        x=>`
+
+        <div class="item"
+             onclick="editExpense(${x.id})">
+
+          <div class="lico">
+            ${expenseIcon(x.category)}
+          </div>
+
+          <div class="main">
+
+            <div class="it">
+              ${esc(x.title)}
+            </div>
+
+            <div class="is">
+
+              ${fmtDate(x.date)}
+              ・
+              ${esc(x.category)}
+              ・
+              ${x.paid
+                ?'支払済み'
+                :'未払い'}
+
+            </div>
+
+          </div>
+
+          <div class="amt">
+            ${yen(x.amount)}
+          </div>
+
+        </div>
+
+        `
+      ).join('')
+      :
+      '<div class="empty">支出はまだありません</div>'
+      }
+
+    </div>
+
+  </div>
+  `;
+
+}
+
+
+/* =========================
+   持ち物
+========================= */
+
+function renderPacking(){
+
+  const done=
+    data.packing
+    .filter(
+      x=>x.checked
+    )
+    .length;
+
+  const total=
+    data.packing.length;
+
+
+  packingView.innerHTML=`
+
+  <div class="sech">
+
+    <div>
+
+      <div class="eyebrow">
+        PACKING
+      </div>
+
+      <div class="sect"
+           style="font-size:24px">
+
+        持ち物
+
+      </div>
+
+    </div>
+
+    <div class="tag ok">
+      ${done}/${total}
+    </div>
+
+  </div>
+
+
+  <div class="card list">
+
+    ${
+    total
+    ?
+    data.packing
+    .map(
+      x=>`
+
+      <div class="item">
+
+        <div class="check"
+             style="flex:1">
+
+          <input
+            type="checkbox"
+            ${x.checked?'checked':''}
+            onchange="togglePacking(${x.id})"
+          >
+
+          <div
+            class="main"
+            onclick="editPacking(${x.id})">
+
+            <div
+              class="it"
+              style="${x.checked?'text-decoration:line-through;color:#9aa0a6':''}">
+
+              ${esc(x.title)}
+
+            </div>
+
+            <div class="is">
+              ${esc(x.category)}
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      `
+    ).join('')
+    :
+    '<div class="empty">持ち物を追加してください</div>'
+    }
+
+  </div>
+  `;
+
+}
+
+
+/* =========================
+   メモ
+========================= */
+
+function renderNotes(){
+
+  notesView.innerHTML=`
+
+  <div class="sech">
+
+    <div>
+
+      <div class="eyebrow">
+        NOTES
+      </div>
+
+      <div class="sect"
+           style="font-size:24px">
+
+        メモ
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card list">
+
+    ${
+    data.notes.length
+    ?
+    data.notes
+    .slice()
+    .sort(
+      (a,b)=>
+        b.date.localeCompare(
+          a.date
+        )
+    )
+    .map(
+      n=>`
+
+      <div class="item"
+           onclick="editNote(${n.id})">
+
+        <div class="lico">
+          📝
+        </div>
+
+        <div class="main">
+
+          <div class="it">
+            ${esc(n.title)}
+          </div>
+
+          <div class="is">
+
+            ${fmtDate(n.date)}
+            ・
+            ${esc(
+              (n.body||'')
+              .slice(
+                0,
+                44
+              )
+            )}
+
+            ${(n.body||'').length>44
+              ?'…'
+              :''}
+
+          </div>
+
+        </div>
+
+      </div>
+
+      `
+    ).join('')
+    :
+    '<div class="empty">メモはまだありません</div>'
+    }
+
+  </div>
+  `;
+
+}
+
+
+function renderAll(){
+
+  renderHome();
+  renderItinerary();
+  renderBookings();
+  renderExpenses();
+  renderPacking();
+  renderNotes();
+
+}
+
+
+function nid(){
+
+  return (
+    Date.now()+
+    Math.floor(
+      Math.random()*1000
+    )
+  );
+
+}
+
+
+let currentView='home';
+
+
+function switchView(v){
+
+  currentView=v;
+
+  document
+  .querySelectorAll('.view')
+  .forEach(
+    x=>
+      x.classList.remove(
+        'active'
+      )
+  );
+
+  document
+  .getElementById(
+    v+'View'
+  )
+  .classList.add(
+    'active'
+  );
+
+  document
+  .querySelectorAll(
+    '.nav button'
+  )
+  .forEach(
+    x=>
+      x.classList.toggle(
+        'active',
+        x.dataset.view===v
+      )
+  );
+
+}
+
+
+document
+.querySelectorAll(
+  '.nav button'
+)
+.forEach(
+  b=>
+    b.onclick=
+      ()=>switchView(
+        b.dataset.view
+      )
+);
+
+
+const sheet=
+  document.getElementById(
+    'sheet'
+  );
+
+const sheetContent=
+  document.getElementById(
+    'sheetContent'
+  );
+
+
+function openSheet(h){
+
+  sheetContent.innerHTML=h;
+
+  sheet.classList.add(
+    'open'
+  );
+
+}
+
+
+function closeSheet(){
+
+  sheet.classList.remove(
+    'open'
+  );
+
+}
+
+
+sheet.addEventListener(
+  'click',
+  e=>{
+
+    if(
+      e.target===sheet
+    ){
+
+      closeSheet();
+
+    }
+
+  }
+);
+
+
+function field(
+  l,
+  n,
+  t='text',
+  v='',
+  full=false
+){
+
+  return `
+
+  <div class="field ${full?'full':''}">
+
+    <label>
+      ${l}
+    </label>
+
+    <input
+      name="${n}"
+      type="${t}"
+      value="${esc(v)}"
+    >
+
+  </div>
+
+  `;
+
+}
+
+
+function sel(
+  l,
+  n,
+  ops,
+  v,
+  full=false
+){
+
+  return `
+
+  <div class="field ${full?'full':''}">
+
+    <label>
+      ${l}
+    </label>
+
+    <select name="${n}">
+
+      ${
+      ops.map(
+        o=>`
+        <option ${o===v?'selected':''}>
+          ${esc(o)}
+        </option>
+        `
+      ).join('')
+      }
+
+    </select>
+
+  </div>
+
+  `;
+
+}
+
+
+function formWrap(
+  title,
+  inner,
+  saveFn,
+  delFn
+){
+
+  openSheet(`
+
+  <div class="sht">
+    ${title}
+  </div>
+
+  <form id="editForm">
+
+    <div class="grid">
+      ${inner}
+    </div>
+
+    <div class="actions">
+
+      ${
+      delFn
+      ?
+      '<button type="button" class="btn danger" id="delBtn">削除</button>'
+      :
+      ''
+      }
+
+      <button
+        type="button"
+        class="btn secondary"
+        onclick="closeSheet()">
+
+        キャンセル
+
+      </button>
+
+      <button class="btn primary">
+        保存
+      </button>
+
+    </div>
+
+  </form>
+  `);
+
+
+  const f=
+    document.getElementById(
+      'editForm'
+    );
+
+
+  f.onsubmit=
+    e=>{
+
+      e.preventDefault();
+
+      saveFn(
+        new FormData(f)
+      );
+
+      closeSheet();
+
+      save();
+
+    };
+
+
+  if(delFn){
+
+    document
+    .getElementById(
+      'delBtn'
+    )
+    .onclick=
+      ()=>{
+
+        if(
+          confirm(
+            '削除しますか？'
+          )
+        ){
+
+          delFn();
+
+          closeSheet();
+
+          save();
+
+        }
+
+      };
+
+  }
+
+}
+
+
+/* =========================
+   編集
+========================= */
+
+function editTrip(){
+
+  const t=data.trip;
+
+  formWrap(
+    '旅行設定',
+
+    field(
+      '旅行名',
+      'title',
+      'text',
+      t.title,
+      true
+    )
+    +
+    field(
+      '出発日',
+      'start',
+      'date',
+      t.start
+    )
+    +
+    field(
+      '帰国日',
+      'end',
+      'date',
+      t.end
+    )
+    +
+    field(
+      '都市・行き先',
+      'cities',
+      'text',
+      t.cities,
+      true
+    )
+    +
+    field(
+      '旅行予算（円）',
+      'budget',
+      'number',
+      t.budget
+    )
+    +
+    field(
+      '現地通貨',
+      'currency',
+      'text',
+      t.currency
+    ),
+
+    fd=>{
+
+      data.trip={
+        ...t,
+        title:fd.get('title'),
+        start:fd.get('start'),
+        end:fd.get('end'),
+        cities:fd.get('cities'),
+        budget:Number(
+          fd.get('budget')
+        ),
+        currency:fd.get('currency')
+      };
+
+    }
+
+  );
+
+}
+
+
+function editItinerary(i){
+
+  const x=
+    i
+    ?
+    data.itinerary.find(
+      x=>x.id===i
+    )
+    :
+    {
+      id:nid(),
+      date:data.trip.start,
+      time:'09:00',
+      type:'sight',
+      title:'',
+      place:'',
+      note:''
+    };
+
+
+  formWrap(
+    i
+      ?'予定を編集'
+      :'予定を追加',
+
+    field(
+      '日付',
+      'date',
+      'date',
+      x.date
+    )
+    +
+    field(
+      '時間',
+      'time',
+      'time',
+      x.time
+    )
+    +
+    sel(
+      '種類',
+      'type',
+      [
+        'flight',
+        'train',
+        'hotel',
+        'food',
+        'sight',
+        'transfer',
+        'other'
+      ],
+      x.type
+    )
+    +
+    field(
+      '予定名',
+      'title',
+      'text',
+      x.title,
+      true
+    )
+    +
+    field(
+      '場所',
+      'place',
+      'text',
+      x.place,
+      true
+    )
+    +
+    `
+    <div class="field full">
+      <label>メモ</label>
+      <textarea name="note">${esc(x.note)}</textarea>
+    </div>
+    `,
+
+    fd=>{
+
+      Object.assign(
+        x,
+        {
+          date:fd.get('date'),
+          time:fd.get('time'),
+          type:fd.get('type'),
+          title:fd.get('title'),
+          place:fd.get('place'),
+          note:fd.get('note')
+        }
+      );
+
+      if(!i){
+        data.itinerary.push(x);
+      }
+
+    },
+
+    i
+    ?
+    ()=>{
+
+      data.itinerary=
+        data.itinerary.filter(
+          y=>y.id!==i
+        );
+
+    }
+    :
+    null
+
+  );
+
+}
+
+
+function editBooking(i){
+
+  const x=
+    i
+    ?
+    data.bookings.find(
+      x=>x.id===i
+    )
+    :
+    {
+      id:nid(),
+      type:'hotel',
+      title:'',
+      provider:'',
+      code:'',
+      price:0,
+      paid:false,
+      status:'予約済み',
+      link:''
+    };
+
+
+  formWrap(
+    i
+      ?'予約を編集'
+      :'予約を追加',
+
+    sel(
+      '種類',
+      'type',
+      [
+        'flight',
+        'train',
+        'hotel',
+        'food',
+        'sight',
+        'transfer',
+        'other'
+      ],
+      x.type
+    )
+    +
+    sel(
+      '状態',
+      'status',
+      [
+        '予約済み',
+        '未予約',
+        'キャンセル'
+      ],
+      x.status
+    )
+    +
+    field(
+      '予約名',
+      'title',
+      'text',
+      x.title,
+      true
+    )
+    +
+    field(
+      '予約先',
+      'provider',
+      'text',
+      x.provider
+    )
+    +
+    field(
+      '予約番号',
+      'code',
+      'text',
+      x.code
+    )
+    +
+    field(
+      '金額（円）',
+      'price',
+      'number',
+      x.price
+    )
+    +
+    field(
+      '予約URL',
+      'link',
+      'url',
+      x.link,
+      true
+    )
+    +
+    `
+    <div class="field full">
+      <label class="check">
+        <input
+          type="checkbox"
+          name="paid"
+          ${x.paid?'checked':''}
+        >
+        支払済み
+      </label>
+    </div>
+    `,
+
+    fd=>{
+
+      Object.assign(
+        x,
+        {
+          type:fd.get('type'),
+          status:fd.get('status'),
+          title:fd.get('title'),
+          provider:fd.get('provider'),
+          code:fd.get('code'),
+          price:Number(
+            fd.get('price')
+          ),
+          link:fd.get('link'),
+          paid:
+            fd.get('paid')==='on'
+        }
+      );
+
+      if(!i){
+        data.bookings.push(x);
+      }
+
+    },
+
+    i
+    ?
+    ()=>{
+
+      data.bookings=
+        data.bookings.filter(
+          y=>y.id!==i
+        );
+
+    }
+    :
+    null
+
+  );
+
+}
+
+
+function editExpense(i){
+
+  const x=
+    i
+    ?
+    data.expenses.find(
+      x=>x.id===i
+    )
+    :
+    {
+      id:nid(),
+      date:
+        new Date()
+        .toISOString()
+        .slice(0,10),
+      category:'食事',
+      title:'',
+      amount:0,
+      paid:true
+    };
+
+
+  formWrap(
+    i
+      ?'費用を編集'
+      :'費用を追加',
+
+    field(
+      '日付',
+      'date',
+      'date',
+      x.date
+    )
+    +
+    sel(
+      'カテゴリ',
+      'category',
+      [
+        '航空券',
+        'ホテル',
+        '交通',
+        '食事',
+        '観光',
+        '買い物',
+        'その他'
+      ],
+      x.category
+    )
+    +
+    field(
+      '内容',
+      'title',
+      'text',
+      x.title,
+      true
+    )
+    +
+    field(
+      '金額（円）',
+      'amount',
+      'number',
+      x.amount
+    )
+    +
+    `
+    <div class="field">
+
+      <label class="check">
+
+        <input
+          type="checkbox"
+          name="paid"
+          ${x.paid?'checked':''}
+        >
+
+        支払済み
+
+      </label>
+
+    </div>
+    `,
+
+    fd=>{
+
+      Object.assign(
+        x,
+        {
+          date:fd.get('date'),
+          category:fd.get('category'),
+          title:fd.get('title'),
+          amount:Number(
+            fd.get('amount')
+          ),
+          paid:
+            fd.get('paid')==='on'
+        }
+      );
+
+      if(!i){
+        data.expenses.push(x);
+      }
+
+    },
+
+    i
+    ?
+    ()=>{
+
+      data.expenses=
+        data.expenses.filter(
+          y=>y.id!==i
+        );
+
+    }
+    :
+    null
+
+  );
+
+}
+
+
+function editPacking(i){
+
+  const x=
+    i
+    ?
+    data.packing.find(
+      x=>x.id===i
+    )
+    :
+    {
+      id:nid(),
+      title:'',
+      checked:false,
+      category:'重要'
+    };
+
+
+  formWrap(
+    i
+      ?'持ち物を編集'
+      :'持ち物を追加',
+
+    field(
+      '持ち物',
+      'title',
+      'text',
+      x.title,
+      true
+    )
+    +
+    sel(
+      'カテゴリ',
+      'category',
+      [
+        '重要',
+        '衣類',
+        '洗面・衛生',
+        '電子機器',
+        '薬・健康',
+        'その他'
+      ],
+      x.category,
+      true
+    ),
+
+    fd=>{
+
+      Object.assign(
+        x,
+        {
+          title:
+            fd.get('title'),
+          category:
+            fd.get('category')
+        }
+      );
+
+      if(!i){
+        data.packing.push(x);
+      }
+
+    },
+
+    i
+    ?
+    ()=>{
+
+      data.packing=
+        data.packing.filter(
+          y=>y.id!==i
+        );
+
+    }
+    :
+    null
+
+  );
+
+}
+
+
+function togglePacking(i){
+
+  const x=
+    data.packing.find(
+      x=>x.id===i
+    );
+
+  if(x){
+
+    x.checked=
+      !x.checked;
+
+    save();
+
+  }
+
+}
+
+
+function editNote(i){
+
+  const x=
+    i
+    ?
+    data.notes.find(
+      x=>x.id===i
+    )
+    :
+    {
+      id:nid(),
+      title:'',
+      body:'',
+      date:
+        new Date()
+        .toISOString()
+        .slice(0,10)
+    };
+
+
+  formWrap(
+    i
+      ?'メモを編集'
+      :'メモを追加',
+
+    field(
+      'タイトル',
+      'title',
+      'text',
+      x.title,
+      true
+    )
+    +
+    field(
+      '日付',
+      'date',
+      'date',
+      x.date,
+      true
+    )
+    +
+    `
+    <div class="field full">
+
+      <label>
+        本文
+      </label>
+
+      <textarea name="body">${esc(x.body)}</textarea>
+
+    </div>
+    `,
+
+    fd=>{
+
+      Object.assign(
+        x,
+        {
+          title:
+            fd.get('title'),
+          date:
+            fd.get('date'),
+          body:
+            fd.get('body')
+        }
+      );
+
+      if(!i){
+        data.notes.push(x);
+      }
+
+    },
+
+    i
+    ?
+    ()=>{
+
+      data.notes=
+        data.notes.filter(
+          y=>y.id!==i
+        );
+
+    }
+    :
+    null
+
+  );
+
+}
+
+
+fab.onclick=
+()=>({
+
+  home:
+    ()=>editItinerary(null),
+
+  itinerary:
+    ()=>editItinerary(null),
+
+  booking:
+    ()=>editBooking(null),
+
+  expense:
+    ()=>editExpense(null),
+
+  packing:
+    ()=>editPacking(null),
+
+  notes:
+    ()=>editNote(null)
+
+}[currentView]());
+
+
+/* =========================
+   設定
+========================= */
+
+function openSettings(){
+
+  openSheet(`
+
+  <div class="sht">
+    設定
+  </div>
+
+
+  <div class="card list">
+
+    <div
+      class="item"
+      onclick="editTrip()">
+
+      <div class="lico">
+        ✈️
+      </div>
+
+      <div class="main">
+
+        <div class="it">
+          旅行情報を編集
+        </div>
+
+        <div class="is">
+          ${esc(data.trip.title)}
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="sec">
+
+    <div
+      class="sect"
+      style="margin-bottom:10px">
+
+      共有・同期
+
+    </div>
+
+
+    <div
+      class="card"
+      style="
+      padding:14px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px
+      ">
+
+      <button
+        class="btn primary"
+        onclick="copyShareLink()">
+
+        共有リンクをコピー
+
+      </button>
+
+
+      <button
+        class="btn secondary"
+        onclick="syncNow()">
+
+        今すぐ同期
+
+      </button>
+
+
+      <button
+        class="btn secondary"
+        style="grid-column:1/-1"
+        onclick="connectWithSharedLink()">
+
+        共有リンクから接続
+
+      </button>
+
+    </div>
+
+
+    <div
+      class="small muted"
+      style="
+      padding:10px 4px 0;
+      line-height:1.6
+      ">
+
+      同じ共有リンクを開いた端末は
+      同じ旅行データを使います。
+      URLには編集キーが含まれるため、
+      信頼できる人だけに共有してください。
+
+    </div>
+
+  </div>
+
+
+  <div class="sec">
+
+    <div
+      class="sect"
+      style="margin-bottom:10px">
+
+      バックアップ
+
+    </div>
+
+
+    <div
+      class="card"
+      style="
+      padding:14px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px
+      ">
+
+      <button
+        class="btn secondary"
+        onclick="exportData()">
+
+        保存
+
+      </button>
+
+
+      <button
+        class="btn secondary"
+        onclick="document.getElementById('importFile').click()">
+
+        復元
+
+      </button>
+
+
+      <input
+        id="importFile"
+        type="file"
+        accept="application/json"
+        style="display:none"
+        onchange="importData(event)"
+      >
+
+
+      <button
+        class="btn danger"
+        style="grid-column:1/-1"
+        onclick="resetData()">
+
+        初期化
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="actions">
+
+    <button
+      class="btn primary"
+      onclick="closeSheet()">
+
+      閉じる
+
+    </button>
+
+  </div>
+
+  `);
+
+}
+
+
+settingsBtn.onclick=
+  openSettings;
+
+
+function exportData(){
+
+  const blob=
+    new Blob(
+      [
+        JSON.stringify(
+          data,
+          null,
+          2
+        )
+      ],
+      {
+        type:
+          'application/json'
+      }
+    );
+
+  const a=
+    document.createElement(
+      'a'
+    );
+
+  a.href=
+    URL.createObjectURL(
+      blob
+    );
+
+  a.download=
+    'tripnote-backup.json';
+
+  a.click();
+
+}
+
+
+function importData(e){
+
+  const f=
+    e.target.files[0];
+
+  if(!f){
+    return;
+  }
+
+  const r=
+    new FileReader();
+
+  r.onload=
+    ()=>{
+
+      try{
+
+        data=
+          JSON.parse(
+            r.result
+          );
+
+        save();
+
+        closeSheet();
+
+        alert(
+          '復元しました'
+        );
+
+      }catch(_){
+
+        alert(
+          '読み込みに失敗しました'
+        );
+
+      }
+
+    };
+
+  r.readAsText(f);
+
+}
+
+
+function resetData(){
+
+  if(
+    confirm(
+      'すべて初期化しますか？'
+    )
+  ){
+
+    data=
+      clone(defaults);
+
+    save();
+
+    closeSheet();
+
+  }
+
+}
+
+
+/* =========================
+   起動
+========================= */
+
+renderAll();
+
+cloudLoad(false);
+
+setInterval(
+  ()=>cloudLoad(true),
+  5000
+);
+
+document.addEventListener(
+  'visibilitychange',
+  ()=>{
+
+    if(
+      document.visibilityState==='visible'
+    ){
+
+      cloudLoad(true);
+
+    }
+
+  }
+);
+
+
+if(
+  'serviceWorker' in navigator
+){
+
+  window.addEventListener(
+    'load',
+    ()=>{
+
+      navigator.serviceWorker
+      .register('sw.js')
+      .catch(()=>{});
+
+    }
+  );
+
+}
+
 </script>
+
+</body>
+</html>

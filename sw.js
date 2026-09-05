@@ -1,38 +1,64 @@
-const CACHE='tripnote-sync-v2';
-const ASSETS=['./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];
+const CACHE = 'tripnote-multi-v3';
 
-self.addEventListener('install',event=>{
-  self.skipWaiting();
-  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
-});
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './apple-touch-icon.png',
+  './icon-192.png',
+  './icon-512.png'
+];
 
-self.addEventListener('activate',event=>{
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))
-      .then(()=>self.clients.claim())
+    caches.open(CACHE).then(cache => {
+      return cache.addAll(ASSETS);
+    })
   );
+
+  self.skipWaiting();
 });
 
-self.addEventListener('fetch',event=>{
-  const url=new URL(event.request.url);
-  if(url.pathname.startsWith('/api/')) return;
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys
+          .filter(key => key !== CACHE)
+          .map(key => caches.delete(key))
+      );
+    })
+  );
 
-  if(event.request.mode==='navigate'){
-    event.respondWith(
-      fetch(event.request).then(response=>{
-        const copy=response.clone();
-        caches.open(CACHE).then(cache=>cache.put('./index.html',copy));
-        return response;
-      }).catch(()=>caches.match('./index.html'))
-    );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // Supabase同期APIはキャッシュしない
+  if (url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // GET以外はキャッシュしない
+  if (event.request.method !== 'GET') {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then(cached=>cached||fetch(event.request).then(response=>{
-      const copy=response.clone();
-      caches.open(CACHE).then(cache=>cache.put(event.request,copy));
-      return response;
-    }))
+    fetch(event.request)
+      .then(response => {
+        const copy = response.clone();
+
+        caches.open(CACHE).then(cache => {
+          cache.put(event.request, copy);
+        });
+
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });

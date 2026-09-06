@@ -403,6 +403,44 @@ main{padding:16px}
   background:#fff;
 }
 
+/* 更新通知 */
+.update-toast{
+  position:fixed;
+  left:50%;
+  bottom:max(95px,calc(env(safe-area-inset-bottom) + 85px));
+  transform:translateX(-50%);
+  width:calc(100% - 32px);
+  max-width:520px;
+  background:#111;
+  color:#fff;
+  border-radius:18px;
+  padding:14px;
+  z-index:300;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.update-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.update-text{
+  flex:1;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.update-btn{
+  border:0;
+  background:#fff;
+  color:#111;
+  padding:9px 13px;
+  border-radius:10px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
 @media(max-width:500px){
   .user-pill{display:none}
 }
@@ -411,7 +449,6 @@ main{padding:16px}
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginScreen" class="auth-screen">
   <div class="auth-card">
 
@@ -444,7 +481,6 @@ main{padding:16px}
   </div>
 </div>
 
-<!-- REGISTER -->
 <div id="registerScreen" class="auth-screen hidden">
   <div class="auth-card">
 
@@ -487,7 +523,6 @@ main{padding:16px}
   </div>
 </div>
 
-<!-- APP -->
 <div id="app" class="app hidden">
 
 <header>
@@ -569,9 +604,22 @@ main{padding:16px}
 
 </div>
 
-<!-- MODAL -->
 <div id="modalWrap" class="modal-wrap hidden" onclick="closeModalOutside(event)">
   <div id="modal" class="modal"></div>
+</div>
+
+<div id="updateToast" class="update-toast hidden">
+  <div class="update-row">
+
+    <div class="update-text">
+      新しいバージョンがあります。
+    </div>
+
+    <button id="updateButton" class="update-btn">
+      更新する
+    </button>
+
+  </div>
 </div>
 
 <script>
@@ -611,7 +659,7 @@ function money(n,currency='EUR'){
   }
 }
 
-/* INITIALIZE */
+/* INIT */
 
 async function init(){
 
@@ -691,8 +739,6 @@ function showRegister(){
 
 }
 
-/* LOGIN */
-
 async function login(){
 
   $('loginMessage').textContent = '';
@@ -728,8 +774,6 @@ async function login(){
 
   await afterLogin();
 }
-
-/* REGISTER */
 
 async function register(){
 
@@ -813,8 +857,6 @@ async function register(){
   }
 }
 
-/* LOGOUT */
-
 async function logout(){
 
   if(!client) return;
@@ -824,7 +866,7 @@ async function logout(){
   location.reload();
 }
 
-/* AFTER LOGIN */
+/* PROFILE */
 
 async function afterLogin(){
 
@@ -875,7 +917,7 @@ async function afterLogin(){
   await loadTrips();
 }
 
-/* LOAD TRIPS */
+/* TRIPS */
 
 async function loadTrips(){
 
@@ -895,7 +937,7 @@ async function loadTrips(){
 
     console.error(error);
 
-    alert('旅行一覧を取得できませんでした.');
+    alert('旅行一覧を取得できませんでした。');
 
     return;
   }
@@ -953,8 +995,6 @@ async function changeTrip(){
 
   await loadActiveTrip();
 }
-
-/* ACTIVE TRIP */
 
 async function loadActiveTrip(){
 
@@ -1105,7 +1145,7 @@ function updateTabs(){
   }
 }
 
-/* VIEW */
+/* VIEWS */
 
 function setView(view){
 
@@ -1129,8 +1169,6 @@ function setView(view){
   if(view === 'packing') renderTable('packing');
   if(view === 'notes') renderTable('notes');
 }
-
-/* HOME */
 
 function renderHome(){
 
@@ -1210,16 +1248,12 @@ function renderHome(){
 }
 
 const tableConfig = {
-
   itinerary:{title:'旅程'},
   bookings:{title:'予約'},
   expenses:{title:'費用'},
   packing:{title:'持ち物'},
   notes:{title:'メモ'}
-
 };
-
-/* TABLES */
 
 async function renderTable(table){
 
@@ -1508,7 +1542,7 @@ function field(label,id,type='text',value=''){
   `;
 }
 
-/* ADD CONTENT */
+/* ADD ROW */
 
 function openAddModal(table){
 
@@ -1621,7 +1655,6 @@ async function saveNewRow(table){
   };
 
   if(table === 'itinerary'){
-
     row.event_date = $('f1').value || null;
     row.event_time = $('f2').value || null;
     row.title = $('f3').value;
@@ -1630,7 +1663,6 @@ async function saveNewRow(table){
   }
 
   if(table === 'bookings'){
-
     row.type = $('f1').value || 'other';
     row.title = $('f2').value;
     row.provider = $('f3').value;
@@ -1640,7 +1672,6 @@ async function saveNewRow(table){
   }
 
   if(table === 'expenses'){
-
     row.expense_date = $('f1').value || null;
     row.category = $('f2').value || 'その他';
     row.title = $('f3').value;
@@ -1648,13 +1679,11 @@ async function saveNewRow(table){
   }
 
   if(table === 'packing'){
-
     row.title = $('f1').value;
     row.category = $('f2').value || 'その他';
   }
 
   if(table === 'notes'){
-
     row.title = $('f1').value;
     row.body = $('f2').value;
     row.note_date = $('f3').value || null;
@@ -1675,11 +1704,10 @@ async function saveNewRow(table){
   }
 
   closeModal();
-
   setView(table);
 }
 
-/* DELETE INDIVIDUAL ROW */
+/* DELETE ROW */
 
 async function deleteRow(table,id){
 
@@ -1777,13 +1805,9 @@ function openTripManager(){
 async function selectTripFromModal(id){
 
   activeTripId = id;
-
   renderTripSelector();
-
   closeModal();
-
   currentView = 'home';
-
   await loadActiveTrip();
 }
 
@@ -1975,9 +1999,7 @@ async function saveTripEdit(){
   await loadTrips();
 }
 
-/* ============================= */
-/* DELETE ENTIRE TRIP */
-/* ============================= */
+/* DELETE TRIP */
 
 async function deleteTrip(){
 
@@ -2014,11 +2036,8 @@ async function deleteTrip(){
     return;
   }
 
-  const tripId =
-    activeTrip.id;
-
-  const tripTitle =
-    activeTrip.title;
+  const tripId = activeTrip.id;
+  const tripTitle = activeTrip.title;
 
   const {error} =
     await client
@@ -2316,7 +2335,7 @@ async function openSettings(){
   `);
 }
 
-/* ADD SHARE */
+/* SHARE */
 
 function openShareAdd(){
 
@@ -2338,9 +2357,7 @@ function openShareAdd(){
 
     <div class="field">
 
-      <label>
-        相手のメールアドレス
-      </label>
+      <label>相手のメールアドレス</label>
 
       <input
         id="shareEmail"
@@ -2420,8 +2437,6 @@ function openShareAdd(){
     </button>
   `);
 }
-
-/* SAVE SHARE */
 
 async function addShareMember(){
 
@@ -2513,8 +2528,6 @@ async function addShareMember(){
   );
 }
 
-/* UPDATE MEMBER */
-
 async function saveMember(id){
 
   if(!profile?.is_admin) return;
@@ -2553,8 +2566,6 @@ async function saveMember(id){
   );
 }
 
-/* REMOVE MEMBER */
-
 async function removeMember(id){
 
   if(!profile?.is_admin) return;
@@ -2589,24 +2600,170 @@ async function removeMember(id){
   await openSettings();
 }
 
+/* ============================= */
+/* PWA AUTO UPDATE */
+/* ============================= */
+
+let newWorker = null;
+let refreshing = false;
+
+function showUpdateToast(){
+
+  $('updateToast')
+    .classList
+    .remove('hidden');
+}
+
+function hideUpdateToast(){
+
+  $('updateToast')
+    .classList
+    .add('hidden');
+}
+
+async function setupServiceWorker(){
+
+  if(!('serviceWorker' in navigator)){
+    return;
+  }
+
+  try{
+
+    const registration =
+      await navigator.serviceWorker.register(
+        '/sw.js',
+        {
+          updateViaCache:'none'
+        }
+      );
+
+    /*
+      アプリ起動時に毎回
+      新しいsw.jsがないか確認
+    */
+    registration.update();
+
+    /*
+      すでに待機中の新バージョンがある場合
+    */
+    if(registration.waiting){
+
+      newWorker =
+        registration.waiting;
+
+      showUpdateToast();
+    }
+
+    /*
+      新しいService Workerを発見
+    */
+    registration.addEventListener(
+      'updatefound',
+      ()=>{
+
+        const worker =
+          registration.installing;
+
+        if(!worker) return;
+
+        worker.addEventListener(
+          'statechange',
+          ()=>{
+
+            if(
+              worker.state ===
+              'installed'
+              &&
+              navigator.serviceWorker.controller
+            ){
+
+              newWorker = worker;
+
+              showUpdateToast();
+            }
+
+          }
+        );
+
+      }
+    );
+
+    /*
+      「更新する」を押した時
+    */
+    $('updateButton')
+      .addEventListener(
+        'click',
+        ()=>{
+
+          if(!newWorker){
+
+            location.reload();
+
+            return;
+          }
+
+          newWorker.postMessage({
+            type:'SKIP_WAITING'
+          });
+
+        }
+      );
+
+    /*
+      新しいService Workerへ切り替わったら
+      自動リロード
+    */
+    navigator.serviceWorker.addEventListener(
+      'controllerchange',
+      ()=>{
+
+        if(refreshing){
+          return;
+        }
+
+        refreshing = true;
+
+        hideUpdateToast();
+
+        location.reload();
+
+      }
+    );
+
+    /*
+      アプリがバックグラウンドから戻った時も確認
+    */
+    document.addEventListener(
+      'visibilitychange',
+      ()=>{
+
+        if(
+          document.visibilityState ===
+          'visible'
+        ){
+
+          registration.update();
+
+        }
+
+      }
+    );
+
+  }catch(error){
+
+    console.error(
+      'Service Worker error:',
+      error
+    );
+
+  }
+}
+
 /* START */
 
 init();
-
-if('serviceWorker' in navigator){
-
-  window.addEventListener(
-    'load',
-    ()=>{
-
-      navigator
-        .serviceWorker
-        .register('/sw.js')
-        .catch(console.error);
-
-    }
-  );
-}
+setupServiceWorker();
 
 </script>
 

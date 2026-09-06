@@ -122,6 +122,26 @@ button{cursor:pointer}
   padding:10px 14px;
 }
 
+.small-action{
+  border:1px solid #ddd;
+  background:#fff;
+  color:#333;
+  border-radius:8px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:700;
+}
+
+.small-delete{
+  border:1px solid #ffd2d2;
+  background:#fff7f7;
+  color:#c62828;
+  border-radius:8px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:700;
+}
+
 .muted{
   color:#777;
   font-size:13px;
@@ -231,7 +251,9 @@ main{padding:16px}
   box-shadow:0 1px 3px rgba(0,0,0,.03);
 }
 
-.card h3{margin:0 0 12px}
+.card h3{
+  margin:0 0 12px;
+}
 
 .row{
   display:flex;
@@ -302,12 +324,18 @@ main{padding:16px}
   border-bottom:1px solid #eee;
 }
 
-.item:last-child{border-bottom:0}
+.item:last-child{
+  border-bottom:0;
+}
 
-.item-title{font-weight:700}
+.item-title{
+  font-weight:700;
+  line-height:1.5;
+}
 
 .item-actions{
   display:flex;
+  justify-content:flex-end;
   gap:6px;
   margin-top:8px;
 }
@@ -316,6 +344,84 @@ main{padding:16px}
   text-align:center;
   padding:40px 18px;
   color:#888;
+}
+
+/* ============================= */
+/* 旅程 */
+/* ============================= */
+
+.itinerary-day{
+  border-radius:20px;
+  margin-bottom:16px;
+  overflow:hidden;
+}
+
+.itinerary-color-0{
+  background:#eef6ff;
+}
+
+.itinerary-color-1{
+  background:#effaf2;
+}
+
+.itinerary-color-2{
+  background:#fff7e8;
+}
+
+.itinerary-color-3{
+  background:#f7efff;
+}
+
+.itinerary-color-4{
+  background:#fff0f4;
+}
+
+.day-header{
+  padding:14px 16px 10px;
+  font-size:17px;
+  font-weight:800;
+}
+
+.day-content{
+  background:rgba(255,255,255,.75);
+  margin:0 8px 8px;
+  border-radius:15px;
+  padding:0 13px;
+}
+
+.timeline-item{
+  display:grid;
+  grid-template-columns:62px 1fr;
+  gap:10px;
+  padding:14px 0;
+  border-bottom:1px solid rgba(0,0,0,.07);
+}
+
+.timeline-item:last-child{
+  border-bottom:0;
+}
+
+.timeline-time{
+  font-size:15px;
+  font-weight:800;
+  color:#333;
+}
+
+.timeline-place{
+  color:#666;
+  font-size:13px;
+  margin-top:4px;
+}
+
+.timeline-note{
+  color:#777;
+  font-size:12px;
+  line-height:1.5;
+  margin-top:5px;
+}
+
+.no-time{
+  color:#aaa;
 }
 
 .fab{
@@ -403,7 +509,6 @@ main{padding:16px}
   background:#fff;
 }
 
-/* 更新通知 */
 .update-toast{
   position:fixed;
   left:50%;
@@ -449,6 +554,7 @@ main{padding:16px}
 
 <body>
 
+<!-- LOGIN -->
 <div id="loginScreen" class="auth-screen">
   <div class="auth-card">
 
@@ -481,6 +587,7 @@ main{padding:16px}
   </div>
 </div>
 
+<!-- REGISTER -->
 <div id="registerScreen" class="auth-screen hidden">
   <div class="auth-card">
 
@@ -489,7 +596,7 @@ main{padding:16px}
 
     <div class="field">
       <label>名前</label>
-      <input id="registerName" type="text" autocomplete="name" placeholder="例：太郎">
+      <input id="registerName" type="text" autocomplete="name">
     </div>
 
     <div class="field">
@@ -499,7 +606,7 @@ main{padding:16px}
 
     <div class="field">
       <label>パスワード</label>
-      <input id="registerPassword" type="password" autocomplete="new-password" placeholder="6文字以上">
+      <input id="registerPassword" type="password" autocomplete="new-password">
     </div>
 
     <div class="field">
@@ -514,7 +621,6 @@ main{padding:16px}
     <div id="registerMessage" class="message"></div>
 
     <div class="auth-switch">
-      すでにアカウントをお持ちの方<br>
       <button class="link-button" onclick="showLogin()">
         ログインへ戻る
       </button>
@@ -523,6 +629,7 @@ main{padding:16px}
   </div>
 </div>
 
+<!-- APP -->
 <div id="app" class="app hidden">
 
 <header>
@@ -604,11 +711,14 @@ main{padding:16px}
 
 </div>
 
+<!-- MODAL -->
 <div id="modalWrap" class="modal-wrap hidden" onclick="closeModalOutside(event)">
   <div id="modal" class="modal"></div>
 </div>
 
+<!-- UPDATE -->
 <div id="updateToast" class="update-toast hidden">
+
   <div class="update-row">
 
     <div class="update-text">
@@ -620,6 +730,7 @@ main{padding:16px}
     </button>
 
   </div>
+
 </div>
 
 <script>
@@ -627,10 +738,12 @@ main{padding:16px}
 let client = null;
 let me = null;
 let profile = null;
+
 let trips = [];
 let activeTripId = null;
 let activeTrip = null;
 let activeMembership = null;
+
 let currentView = 'home';
 
 const $ = id => document.getElementById(id);
@@ -645,7 +758,9 @@ function esc(v=''){
 }
 
 function money(n,currency='EUR'){
+
   try{
+
     return new Intl.NumberFormat(
       'ja-JP',
       {
@@ -654,55 +769,102 @@ function money(n,currency='EUR'){
         maximumFractionDigits:0
       }
     ).format(Number(n || 0));
+
   }catch{
-    return Number(n || 0).toLocaleString() + ' ' + (currency || '');
+
+    return Number(n || 0).toLocaleString()
+      +
+      ' '
+      +
+      (currency || '');
+
   }
 }
 
+/* ============================= */
+/* DATE */
+/* ============================= */
+
+function formatJapaneseDate(dateString){
+
+  if(!dateString){
+    return '日付未設定';
+  }
+
+  const d =
+    new Date(
+      dateString + 'T00:00:00'
+    );
+
+  const weekdays =
+    ['日','月','火','水','木','金','土'];
+
+  return (
+    `${d.getMonth()+1}月${d.getDate()}日（${weekdays[d.getDay()]}）`
+  );
+}
+
+function formatTime(time){
+
+  if(!time){
+    return '';
+  }
+
+  return time.slice(0,5);
+}
+
+/* ============================= */
 /* INIT */
+/* ============================= */
 
 async function init(){
 
   try{
 
-    const response = await fetch(
-      '/api/config',
-      {cache:'no-store'}
-    );
+    const response =
+      await fetch(
+        '/api/config',
+        {
+          cache:'no-store'
+        }
+      );
 
-    if(!response.ok){
-      throw new Error('CONFIG_ERROR');
-    }
+    const config =
+      await response.json();
 
-    const config = await response.json();
-
-    if(!config.supabaseUrl || !config.supabaseAnonKey){
-      throw new Error('Supabase設定がありません');
-    }
-
-    client = window.supabase.createClient(
-      config.supabaseUrl,
-      config.supabaseAnonKey
-    );
+    client =
+      window.supabase.createClient(
+        config.supabaseUrl,
+        config.supabaseAnonKey
+      );
 
     const {
       data:{session}
-    } = await client.auth.getSession();
+    } =
+      await client.auth.getSession();
 
     if(session){
+
       me = session.user;
+
       await afterLogin();
+
     }else{
+
       showLogin();
+
     }
 
     client.auth.onAuthStateChange(
-      async(event,session)=>{
+      async(event)=>{
 
         if(event === 'SIGNED_OUT'){
+
           me = null;
           profile = null;
+
           showLogin();
+
         }
 
       }
@@ -718,7 +880,9 @@ async function init(){
   }
 }
 
+/* ============================= */
 /* AUTH */
+/* ============================= */
 
 function showLogin(){
 
@@ -734,17 +898,17 @@ function showRegister(){
   $('registerScreen').classList.remove('hidden');
   $('app').classList.add('hidden');
 
-  $('registerMessage').className = 'message';
-  $('registerMessage').textContent = '';
-
 }
 
 async function login(){
 
   $('loginMessage').textContent = '';
 
-  const email = $('loginEmail').value.trim();
-  const password = $('loginPassword').value;
+  const email =
+    $('loginEmail').value.trim();
+
+  const password =
+    $('loginPassword').value;
 
   if(!email || !password){
 
@@ -752,6 +916,7 @@ async function login(){
       'メールアドレスとパスワードを入力してください。';
 
     return;
+
   }
 
   const {data,error} =
@@ -768,142 +933,130 @@ async function login(){
       'メールアドレスまたはパスワードを確認してください。';
 
     return;
+
   }
 
   me = data.user;
 
   await afterLogin();
+
 }
 
 async function register(){
 
-  const name = $('registerName').value.trim();
-  const email = $('registerEmail').value.trim().toLowerCase();
-  const password = $('registerPassword').value;
-  const password2 = $('registerPassword2').value;
+  const name =
+    $('registerName').value.trim();
 
-  const message = $('registerMessage');
+  const email =
+    $('registerEmail').value.trim().toLowerCase();
 
-  message.className = 'message';
+  const password =
+    $('registerPassword').value;
+
+  const password2 =
+    $('registerPassword2').value;
+
+  const message =
+    $('registerMessage');
+
   message.textContent = '';
+  message.className = 'message';
 
   if(!name){
+
     message.classList.add('error');
     message.textContent = '名前を入力してください。';
-    return;
-  }
 
-  if(!email){
-    message.classList.add('error');
-    message.textContent = 'メールアドレスを入力してください。';
     return;
+
   }
 
   if(password.length < 6){
+
     message.classList.add('error');
     message.textContent = 'パスワードは6文字以上にしてください。';
+
     return;
+
   }
 
   if(password !== password2){
+
     message.classList.add('error');
     message.textContent = '確認用パスワードが一致していません。';
-    return;
-  }
 
-  $('registerButton').disabled = true;
-  $('registerButton').textContent = '登録中...';
+    return;
+
+  }
 
   const {data,error} =
     await client.auth.signUp({
+
       email,
       password,
+
       options:{
         data:{name}
       }
-    });
 
-  $('registerButton').disabled = false;
-  $('registerButton').textContent = 'アカウントを作成';
+    });
 
   if(error){
 
-    console.error(error);
-
     message.classList.add('error');
-    message.textContent =
-      '新規登録できませんでした。メールアドレスやパスワードを確認してください。';
+    message.textContent = '新規登録できませんでした。';
 
     return;
+
   }
 
   message.classList.add('success');
 
   if(data.session){
 
-    message.textContent = '登録が完了しました。';
-
     me = data.user;
-
-    setTimeout(()=>{
-      afterLogin();
-    },600);
+    await afterLogin();
 
   }else{
 
     message.textContent =
-      '登録しました。確認メールを送信しました。メール内のリンクを押したあと、TripNoteに戻ってログインしてください。';
+      '確認メールを送りました。メール内のリンクを開いてください。';
 
   }
 }
 
 async function logout(){
 
-  if(!client) return;
-
   await client.auth.signOut();
 
   location.reload();
+
 }
 
-/* PROFILE */
+/* ============================= */
+/* LOGIN COMPLETE */
+/* ============================= */
 
 async function afterLogin(){
 
-  if(!me) return;
-
-  let {data:p,error} =
+  const {data,error} =
     await client
       .from('profiles')
       .select('*')
       .eq('id',me.id)
       .maybeSingle();
 
-  if(!p && !error){
-
-    await new Promise(resolve=>setTimeout(resolve,500));
-
-    const result =
-      await client
-        .from('profiles')
-        .select('*')
-        .eq('id',me.id)
-        .maybeSingle();
-
-    p = result.data;
-    error = result.error;
-  }
-
-  if(error || !p){
+  if(error || !data){
 
     console.error(error);
 
-    alert('プロフィール情報を取得できませんでした。');
+    alert('プロフィールを取得できませんでした。');
 
     return;
+
   }
 
-  profile = p;
+  profile = data;
 
   $('userLabel').textContent =
     (profile.name || me.email)
@@ -915,9 +1068,12 @@ async function afterLogin(){
   $('app').classList.remove('hidden');
 
   await loadTrips();
+
 }
 
+/* ============================= */
 /* TRIPS */
+/* ============================= */
 
 async function loadTrips(){
 
@@ -936,10 +1092,10 @@ async function loadTrips(){
   if(error){
 
     console.error(error);
-
     alert('旅行一覧を取得できませんでした。');
 
     return;
+
   }
 
   trips = data || [];
@@ -955,6 +1111,7 @@ async function loadTrips(){
     $('tripSelect').innerHTML = '';
 
     return;
+
   }
 
   $('noTrips').classList.add('hidden');
@@ -966,42 +1123,55 @@ async function loadTrips(){
     ||
     !trips.some(t=>t.id === activeTripId)
   ){
-    activeTripId = trips[0].id;
+
+    activeTripId =
+      trips[0].id;
+
   }
 
   renderTripSelector();
 
   await loadActiveTrip();
+
 }
 
 function renderTripSelector(){
 
   $('tripSelect').innerHTML =
     trips.map(t=>`
+
       <option
         value="${t.id}"
         ${t.id===activeTripId?'selected':''}
       >
         ${esc(t.title)}
       </option>
+
     `).join('');
+
 }
 
 async function changeTrip(){
 
-  activeTripId = $('tripSelect').value;
+  activeTripId =
+    $('tripSelect').value;
 
   currentView = 'home';
 
   await loadActiveTrip();
+
 }
 
 async function loadActiveTrip(){
 
   activeTrip =
-    trips.find(t=>t.id === activeTripId);
+    trips.find(
+      t => t.id === activeTripId
+    );
 
-  if(!activeTrip) return;
+  if(!activeTrip){
+    return;
+  }
 
   activeMembership = null;
 
@@ -1019,15 +1189,22 @@ async function loadActiveTrip(){
         .eq('user_id',me.id)
         .maybeSingle();
 
-    activeMembership = data || null;
+    activeMembership =
+      data || null;
+
   }
 
   renderHero();
+
   updateTabs();
+
   setView(currentView);
+
 }
 
+/* ============================= */
 /* PERMISSIONS */
+/* ============================= */
 
 function isOwner(){
 
@@ -1036,6 +1213,7 @@ function isOwner(){
     ||
     activeTrip?.owner_id === me?.id
   );
+
 }
 
 function isActualOwner(){
@@ -1043,6 +1221,7 @@ function isActualOwner(){
   return (
     activeTrip?.owner_id === me?.id
   );
+
 }
 
 function canEdit(){
@@ -1052,6 +1231,7 @@ function canEdit(){
     ||
     activeMembership?.role === 'editor'
   );
+
 }
 
 function canSeeExpenses(){
@@ -1061,6 +1241,7 @@ function canSeeExpenses(){
     ||
     !!activeMembership?.can_view_expenses
   );
+
 }
 
 function canSeeNotes(){
@@ -1070,9 +1251,12 @@ function canSeeNotes(){
     ||
     !!activeMembership?.can_view_notes
   );
+
 }
 
+/* ============================= */
 /* HERO */
+/* ============================= */
 
 function renderHero(){
 
@@ -1086,7 +1270,10 @@ function renderHero(){
     '日程未設定';
 
   $('hero').innerHTML = `
-    <h2>${esc(t.title)}</h2>
+
+    <h2>
+      ${esc(t.title)}
+    </h2>
 
     <div class="meta">
       ${esc(t.cities || '行き先未設定')}
@@ -1103,10 +1290,14 @@ function renderHero(){
     <div class="budget-value">
       ${money(t.budget,t.currency)}
     </div>
+
   `;
+
 }
 
+/* ============================= */
 /* TABS */
+/* ============================= */
 
 function updateTabs(){
 
@@ -1128,24 +1319,7 @@ function updateTabs(){
       )
     );
 
-  if(
-    currentView === 'expenses'
-    &&
-    !canSeeExpenses()
-  ){
-    currentView = 'home';
-  }
-
-  if(
-    currentView === 'notes'
-    &&
-    !canSeeNotes()
-  ){
-    currentView = 'home';
-  }
 }
-
-/* VIEWS */
 
 function setView(view){
 
@@ -1162,13 +1336,35 @@ function setView(view){
 
     });
 
-  if(view === 'home') renderHome();
-  if(view === 'itinerary') renderTable('itinerary');
-  if(view === 'bookings') renderTable('bookings');
-  if(view === 'expenses') renderTable('expenses');
-  if(view === 'packing') renderTable('packing');
-  if(view === 'notes') renderTable('notes');
+  if(view === 'home'){
+    renderHome();
+  }
+
+  if(view === 'itinerary'){
+    renderItinerary();
+  }
+
+  if(view === 'bookings'){
+    renderTable('bookings');
+  }
+
+  if(view === 'expenses'){
+    renderTable('expenses');
+  }
+
+  if(view === 'packing'){
+    renderTable('packing');
+  }
+
+  if(view === 'notes'){
+    renderTable('notes');
+  }
+
 }
+
+/* ============================= */
+/* HOME */
+/* ============================= */
 
 function renderHome(){
 
@@ -1184,7 +1380,9 @@ function renderHome(){
 
     permissionClass = 'owner';
 
-  }else if(activeMembership?.role === 'editor'){
+  }else if(
+    activeMembership?.role === 'editor'
+  ){
 
     permissionText = '編集可能';
     permissionClass = 'editor';
@@ -1192,16 +1390,6 @@ function renderHome(){
   }
 
   $('content').innerHTML = `
-
-    ${
-      profile.is_admin && !isActualOwner()
-      ? `
-        <div class="admin-note">
-          管理者としてこの旅行を表示しています。
-        </div>
-      `
-      : ''
-    }
 
     <div class="card">
 
@@ -1233,7 +1421,10 @@ function renderHome(){
       <div class="item">
         <div class="muted">予算</div>
         <div class="item-title">
-          ${money(activeTrip.budget,activeTrip.currency)}
+          ${money(
+            activeTrip.budget,
+            activeTrip.currency
+          )}
         </div>
       </div>
 
@@ -1244,32 +1435,263 @@ function renderHome(){
       </div>
 
     </div>
+
   `;
+
 }
 
+/* ============================= */
+/* ITINERARY */
+/* ============================= */
+
+async function renderItinerary(){
+
+  $('content').innerHTML = `
+    <div class="card">
+      <div class="muted">
+        読み込み中...
+      </div>
+    </div>
+  `;
+
+  const {data,error} =
+    await client
+      .from('itinerary')
+      .select('*')
+      .eq('trip_id',activeTripId)
+      .order('event_date',{
+        ascending:true,
+        nullsFirst:false
+      })
+      .order('event_time',{
+        ascending:true,
+        nullsFirst:false
+      });
+
+  if(error){
+
+    console.error(error);
+
+    $('content').innerHTML =
+      '<div class="card">読み込みに失敗しました。</div>';
+
+    return;
+
+  }
+
+  const rows =
+    data || [];
+
+  if(!rows.length){
+
+    $('content').innerHTML = `
+
+      <div class="card empty">
+
+        <h3>旅程</h3>
+
+        <p>
+          まだ予定が登録されていません。
+        </p>
+
+        ${
+          canEdit()
+          ? `
+            <button
+              class="primary"
+              onclick="openAddModal('itinerary')"
+            >
+              ＋ 予定を追加
+            </button>
+          `
+          : ''
+        }
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+  const groups = {};
+
+  rows.forEach(row=>{
+
+    const key =
+      row.event_date || 'no-date';
+
+    if(!groups[key]){
+      groups[key] = [];
+    }
+
+    groups[key].push(row);
+
+  });
+
+  let html = '';
+
+  Object
+    .entries(groups)
+    .forEach(([date,items],index)=>{
+
+      html += `
+
+        <section
+          class="
+            itinerary-day
+            itinerary-color-${index % 5}
+          "
+        >
+
+          <div class="day-header">
+            ${
+              date === 'no-date'
+              ? '日付未設定'
+              : formatJapaneseDate(date)
+            }
+          </div>
+
+          <div class="day-content">
+
+            ${
+              items.map(row=>`
+
+                <div class="timeline-item">
+
+                  <div
+                    class="
+                      timeline-time
+                      ${row.event_time ? '' : 'no-time'}
+                    "
+                  >
+                    ${
+                      row.event_time
+                      ? formatTime(row.event_time)
+                      : '時間未定'
+                    }
+                  </div>
+
+                  <div>
+
+                    <div class="item-title">
+                      ${esc(row.title)}
+                    </div>
+
+                    ${
+                      row.place
+                      ? `
+                        <div class="timeline-place">
+                          📍 ${esc(row.place)}
+                        </div>
+                      `
+                      : ''
+                    }
+
+                    ${
+                      row.note
+                      ? `
+                        <div class="timeline-note">
+                          ${esc(row.note)}
+                        </div>
+                      `
+                      : ''
+                    }
+
+                    ${
+                      canEdit()
+                      ? `
+                        <div class="item-actions">
+
+                          <button
+                            class="small-action"
+                            onclick="openEditRow('itinerary','${row.id}')"
+                          >
+                            編集
+                          </button>
+
+                          <button
+                            class="small-delete"
+                            onclick="deleteRow('itinerary','${row.id}')"
+                          >
+                            削除
+                          </button>
+
+                        </div>
+                      `
+                      : ''
+                    }
+
+                  </div>
+
+                </div>
+
+              `).join('')
+            }
+
+          </div>
+
+        </section>
+
+      `;
+
+    });
+
+  $('content').innerHTML =
+    html;
+
+}
+
+/* ============================= */
+/* OTHER TABLES */
+/* ============================= */
+
 const tableConfig = {
-  itinerary:{title:'旅程'},
-  bookings:{title:'予約'},
-  expenses:{title:'費用'},
-  packing:{title:'持ち物'},
-  notes:{title:'メモ'}
+
+  bookings:{
+    title:'予約'
+  },
+
+  expenses:{
+    title:'費用'
+  },
+
+  packing:{
+    title:'持ち物'
+  },
+
+  notes:{
+    title:'メモ'
+  }
+
 };
 
 async function renderTable(table){
 
-  if(table === 'expenses' && !canSeeExpenses()){
+  if(
+    table === 'expenses'
+    &&
+    !canSeeExpenses()
+  ){
     setView('home');
     return;
   }
 
-  if(table === 'notes' && !canSeeNotes()){
+  if(
+    table === 'notes'
+    &&
+    !canSeeNotes()
+  ){
     setView('home');
     return;
   }
 
   $('content').innerHTML = `
     <div class="card">
-      <div class="muted">読み込み中...</div>
+      <div class="muted">
+        読み込み中...
+      </div>
     </div>
   `;
 
@@ -1280,33 +1702,37 @@ async function renderTable(table){
       .eq('trip_id',activeTripId)
       .order(
         'created_at',
-        {ascending:true}
+        {
+          ascending:true
+        }
       );
 
   if(error){
 
     console.error(error);
 
-    $('content').innerHTML = `
-      <div class="card">
-        読み込みに失敗しました。
-      </div>
-    `;
+    $('content').innerHTML =
+      '<div class="card">読み込みに失敗しました。</div>';
 
     return;
+
   }
 
   const rows = data || [];
-  const config = tableConfig[table];
 
   if(!rows.length){
 
     $('content').innerHTML = `
+
       <div class="card empty">
 
-        <h3>${config.title}</h3>
+        <h3>
+          ${tableConfig[table].title}
+        </h3>
 
-        <p>まだ登録されていません。</p>
+        <p>
+          まだ登録されていません。
+        </p>
 
         ${
           canEdit()
@@ -1322,18 +1748,24 @@ async function renderTable(table){
         }
 
       </div>
+
     `;
 
     return;
+
   }
 
   $('content').innerHTML = `
+
     <div class="card">
 
-      <h3>${config.title}</h3>
+      <h3>
+        ${tableConfig[table].title}
+      </h3>
 
       ${
         rows.map(row=>`
+
           <div class="item">
 
             ${renderRow(table,row)}
@@ -1344,7 +1776,14 @@ async function renderTable(table){
                 <div class="item-actions">
 
                   <button
-                    class="danger"
+                    class="small-action"
+                    onclick="openEditRow('${table}','${row.id}')"
+                  >
+                    編集
+                  </button>
+
+                  <button
+                    class="small-delete"
                     onclick="deleteRow('${table}','${row.id}')"
                   >
                     削除
@@ -1356,54 +1795,35 @@ async function renderTable(table){
             }
 
           </div>
+
         `).join('')
       }
 
     </div>
+
   `;
+
 }
 
 function renderRow(table,r){
 
-  if(table === 'itinerary'){
-
-    return `
-      <div class="muted">
-        ${esc(r.event_date || '')}
-        ${esc(r.event_time || '')}
-      </div>
-
-      <div class="item-title">
-        ${esc(r.title)}
-      </div>
-
-      <div>
-        ${esc(r.place || '')}
-      </div>
-
-      <div class="muted">
-        ${esc(r.note || '')}
-      </div>
-    `;
-  }
-
   if(table === 'bookings'){
 
     return `
+
       <div class="item-title">
         ${esc(r.title)}
       </div>
 
       <div class="muted">
         ${esc(r.provider || '')}
-        ${esc(r.status || '')}
       </div>
 
       ${
-        r.price
+        r.status
         ? `
-          <div>
-            ${money(r.price,activeTrip.currency)}
+          <div class="small">
+            状態：${esc(r.status)}
           </div>
         `
         : ''
@@ -1418,12 +1838,28 @@ function renderRow(table,r){
         `
         : ''
       }
+
+      ${
+        Number(r.price || 0) > 0
+        ? `
+          <div style="margin-top:5px;font-weight:700">
+            ${money(
+              r.price,
+              activeTrip.currency
+            )}
+          </div>
+        `
+        : ''
+      }
+
     `;
+
   }
 
   if(table === 'expenses'){
 
     return `
+
       <div class="row between">
 
         <div>
@@ -1433,23 +1869,29 @@ function renderRow(table,r){
           </div>
 
           <div class="muted">
-            ${esc(r.category || '')}
             ${esc(r.expense_date || '')}
+            ${esc(r.category || '')}
           </div>
 
         </div>
 
         <strong>
-          ${money(r.amount,activeTrip.currency)}
+          ${money(
+            r.amount,
+            activeTrip.currency
+          )}
         </strong>
 
       </div>
+
     `;
+
   }
 
   if(table === 'packing'){
 
     return `
+
       <div class="row">
 
         <span>
@@ -1469,68 +1911,114 @@ function renderRow(table,r){
         </div>
 
       </div>
+
     `;
+
   }
 
   if(table === 'notes'){
 
     return `
+
       <div class="item-title">
         ${esc(r.title)}
       </div>
 
-      <div class="muted">
-        ${esc(r.note_date || '')}
-      </div>
+      ${
+        r.note_date
+        ? `
+          <div class="muted">
+            ${esc(r.note_date)}
+          </div>
+        `
+        : ''
+      }
 
-      <div>
+      <div style="margin-top:5px;white-space:pre-wrap">
         ${esc(r.body || '')}
       </div>
+
     `;
+
   }
 
   return '';
+
 }
 
+/* ============================= */
 /* FAB */
+/* ============================= */
 
 function addCurrent(){
 
-  if(!activeTrip || !canEdit()) return;
-
-  if(currentView === 'home'){
-    openTripEdit();
+  if(
+    !activeTrip
+    ||
+    !canEdit()
+  ){
     return;
   }
 
+  if(currentView === 'home'){
+
+    openTripEdit();
+    return;
+
+  }
+
   openAddModal(currentView);
+
 }
 
+/* ============================= */
 /* MODAL */
+/* ============================= */
 
 function openModal(html){
 
   $('modal').innerHTML = html;
-  $('modalWrap').classList.remove('hidden');
+
+  $('modalWrap')
+    .classList
+    .remove('hidden');
+
 }
 
 function closeModal(){
-  $('modalWrap').classList.add('hidden');
+
+  $('modalWrap')
+    .classList
+    .add('hidden');
+
 }
 
 function closeModalOutside(e){
 
-  if(e.target.id === 'modalWrap'){
+  if(
+    e.target.id === 'modalWrap'
+  ){
+
     closeModal();
+
   }
+
 }
 
-function field(label,id,type='text',value=''){
+function field(
+  label,
+  id,
+  type='text',
+  value=''
+){
 
   return `
+
     <div class="field">
 
-      <label>${label}</label>
+      <label>
+        ${label}
+      </label>
 
       <input
         id="${id}"
@@ -1539,30 +2027,42 @@ function field(label,id,type='text',value=''){
       >
 
     </div>
+
   `;
+
 }
 
-/* ADD ROW */
+/* ============================= */
+/* ADD */
+/* ============================= */
 
 function openAddModal(table){
 
-  if(!canEdit()) return;
-
-  if(table === 'expenses' && !canSeeExpenses()) return;
-  if(table === 'notes' && !canSeeNotes()) return;
+  if(!canEdit()){
+    return;
+  }
 
   let html = `
+
     <div class="modal-head">
 
       <h3>
-        ${tableConfig[table].title}を追加
+        ${
+          table === 'itinerary'
+          ? '予定を追加'
+          : tableConfig[table].title + 'を追加'
+        }
       </h3>
 
-      <button class="icon-btn" onclick="closeModal()">
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
         ×
       </button>
 
     </div>
+
   `;
 
   if(table === 'itinerary'){
@@ -1577,6 +2077,7 @@ function openAddModal(table){
       field('場所','f4')
       +
       field('メモ','f5');
+
   }
 
   if(table === 'bookings'){
@@ -1593,6 +2094,7 @@ function openAddModal(table){
       field('金額','f5','number')
       +
       field('ステータス','f6');
+
   }
 
   if(table === 'expenses'){
@@ -1605,6 +2107,7 @@ function openAddModal(table){
       field('内容','f3')
       +
       field('金額','f4','number');
+
   }
 
   if(table === 'packing'){
@@ -1613,6 +2116,7 @@ function openAddModal(table){
       field('持ち物','f1')
       +
       field('カテゴリー','f2');
+
   }
 
   if(table === 'notes'){
@@ -1621,72 +2125,127 @@ function openAddModal(table){
       field('タイトル','f1')
       +
       `
+
         <div class="field">
 
           <label>内容</label>
 
           <textarea
             id="f2"
-            rows="5"
+            rows="6"
           ></textarea>
 
         </div>
+
       `
       +
       field('日付','f3','date');
+
   }
 
   html += `
+
     <button
       class="primary full"
       onclick="saveNewRow('${table}')"
     >
       保存
     </button>
+
   `;
 
   openModal(html);
+
 }
 
 async function saveNewRow(table){
 
-  let row = {
+  const row = {
     trip_id:activeTripId
   };
 
   if(table === 'itinerary'){
-    row.event_date = $('f1').value || null;
-    row.event_time = $('f2').value || null;
-    row.title = $('f3').value;
-    row.place = $('f4').value;
-    row.note = $('f5').value;
+
+    row.event_date =
+      $('f1').value || null;
+
+    row.event_time =
+      $('f2').value || null;
+
+    row.title =
+      $('f3').value;
+
+    row.place =
+      $('f4').value;
+
+    row.note =
+      $('f5').value;
+
   }
 
   if(table === 'bookings'){
-    row.type = $('f1').value || 'other';
-    row.title = $('f2').value;
-    row.provider = $('f3').value;
-    row.reservation_code = $('f4').value;
-    row.price = Number($('f5').value || 0);
-    row.status = $('f6').value || '予約済み';
+
+    row.type =
+      $('f1').value || 'other';
+
+    row.title =
+      $('f2').value;
+
+    row.provider =
+      $('f3').value;
+
+    row.reservation_code =
+      $('f4').value;
+
+    row.price =
+      Number(
+        $('f5').value || 0
+      );
+
+    row.status =
+      $('f6').value || '予約済み';
+
   }
 
   if(table === 'expenses'){
-    row.expense_date = $('f1').value || null;
-    row.category = $('f2').value || 'その他';
-    row.title = $('f3').value;
-    row.amount = Number($('f4').value || 0);
+
+    row.expense_date =
+      $('f1').value || null;
+
+    row.category =
+      $('f2').value || 'その他';
+
+    row.title =
+      $('f3').value;
+
+    row.amount =
+      Number(
+        $('f4').value || 0
+      );
+
   }
 
   if(table === 'packing'){
-    row.title = $('f1').value;
-    row.category = $('f2').value || 'その他';
+
+    row.title =
+      $('f1').value;
+
+    row.category =
+      $('f2').value || 'その他';
+
   }
 
   if(table === 'notes'){
-    row.title = $('f1').value;
-    row.body = $('f2').value;
-    row.note_date = $('f3').value || null;
+
+    row.title =
+      $('f1').value;
+
+    row.body =
+      $('f2').value;
+
+    row.note_date =
+      $('f3').value || null;
+
   }
 
   const {error} =
@@ -1697,21 +2256,405 @@ async function saveNewRow(table){
   if(error){
 
     console.error(error);
-
     alert('保存できませんでした。');
 
     return;
+
   }
 
   closeModal();
+
   setView(table);
+
 }
 
+/* ============================= */
+/* EDIT */
+/* ============================= */
+
+async function openEditRow(table,id){
+
+  const {data,error} =
+    await client
+      .from(table)
+      .select('*')
+      .eq('id',id)
+      .single();
+
+  if(error || !data){
+
+    console.error(error);
+    alert('データを取得できませんでした。');
+
+    return;
+
+  }
+
+  const row = data;
+
+  let html = `
+
+    <div class="modal-head">
+
+      <h3>編集</h3>
+
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
+    </div>
+
+  `;
+
+  if(table === 'itinerary'){
+
+    html +=
+      field(
+        '日付',
+        'e1',
+        'date',
+        row.event_date || ''
+      )
+      +
+      field(
+        '時間',
+        'e2',
+        'time',
+        formatTime(row.event_time)
+      )
+      +
+      field(
+        '予定',
+        'e3',
+        'text',
+        row.title || ''
+      )
+      +
+      field(
+        '場所',
+        'e4',
+        'text',
+        row.place || ''
+      )
+      +
+      field(
+        'メモ',
+        'e5',
+        'text',
+        row.note || ''
+      );
+
+  }
+
+  if(table === 'bookings'){
+
+    html +=
+      field(
+        '種類',
+        'e1',
+        'text',
+        row.type || ''
+      )
+      +
+      field(
+        '予約名',
+        'e2',
+        'text',
+        row.title || ''
+      )
+      +
+      field(
+        '会社・施設',
+        'e3',
+        'text',
+        row.provider || ''
+      )
+      +
+      field(
+        '予約番号',
+        'e4',
+        'text',
+        row.reservation_code || ''
+      )
+      +
+      field(
+        '金額',
+        'e5',
+        'number',
+        row.price || 0
+      )
+      +
+      field(
+        'ステータス',
+        'e6',
+        'text',
+        row.status || ''
+      );
+
+  }
+
+  if(table === 'expenses'){
+
+    html +=
+      field(
+        '日付',
+        'e1',
+        'date',
+        row.expense_date || ''
+      )
+      +
+      field(
+        'カテゴリー',
+        'e2',
+        'text',
+        row.category || ''
+      )
+      +
+      field(
+        '内容',
+        'e3',
+        'text',
+        row.title || ''
+      )
+      +
+      field(
+        '金額',
+        'e4',
+        'number',
+        row.amount || 0
+      );
+
+  }
+
+  if(table === 'packing'){
+
+    html +=
+      field(
+        '持ち物',
+        'e1',
+        'text',
+        row.title || ''
+      )
+      +
+      field(
+        'カテゴリー',
+        'e2',
+        'text',
+        row.category || ''
+      );
+
+    html += `
+
+      <div class="field">
+
+        <label>
+          状態
+        </label>
+
+        <select id="e3">
+
+          <option
+            value="false"
+            ${!row.checked ? 'selected' : ''}
+          >
+            未チェック
+          </option>
+
+          <option
+            value="true"
+            ${row.checked ? 'selected' : ''}
+          >
+            準備済み
+          </option>
+
+        </select>
+
+      </div>
+
+    `;
+
+  }
+
+  if(table === 'notes'){
+
+    html +=
+      field(
+        'タイトル',
+        'e1',
+        'text',
+        row.title || ''
+      );
+
+    html += `
+
+      <div class="field">
+
+        <label>
+          内容
+        </label>
+
+        <textarea
+          id="e2"
+          rows="6"
+        >${esc(row.body || '')}</textarea>
+
+      </div>
+
+    `;
+
+    html +=
+      field(
+        '日付',
+        'e3',
+        'date',
+        row.note_date || ''
+      );
+
+  }
+
+  html += `
+
+    <button
+      class="primary full"
+      onclick="saveEditedRow('${table}','${id}')"
+    >
+      変更を保存
+    </button>
+
+  `;
+
+  openModal(html);
+
+}
+
+async function saveEditedRow(table,id){
+
+  const changes = {};
+
+  if(table === 'itinerary'){
+
+    changes.event_date =
+      $('e1').value || null;
+
+    changes.event_time =
+      $('e2').value || null;
+
+    changes.title =
+      $('e3').value;
+
+    changes.place =
+      $('e4').value;
+
+    changes.note =
+      $('e5').value;
+
+  }
+
+  if(table === 'bookings'){
+
+    changes.type =
+      $('e1').value || 'other';
+
+    changes.title =
+      $('e2').value;
+
+    changes.provider =
+      $('e3').value;
+
+    changes.reservation_code =
+      $('e4').value;
+
+    changes.price =
+      Number(
+        $('e5').value || 0
+      );
+
+    changes.status =
+      $('e6').value || '予約済み';
+
+  }
+
+  if(table === 'expenses'){
+
+    changes.expense_date =
+      $('e1').value || null;
+
+    changes.category =
+      $('e2').value || 'その他';
+
+    changes.title =
+      $('e3').value;
+
+    changes.amount =
+      Number(
+        $('e4').value || 0
+      );
+
+  }
+
+  if(table === 'packing'){
+
+    changes.title =
+      $('e1').value;
+
+    changes.category =
+      $('e2').value || 'その他';
+
+    changes.checked =
+      $('e3').value === 'true';
+
+  }
+
+  if(table === 'notes'){
+
+    changes.title =
+      $('e1').value;
+
+    changes.body =
+      $('e2').value;
+
+    changes.note_date =
+      $('e3').value || null;
+
+  }
+
+  const {error} =
+    await client
+      .from(table)
+      .update(changes)
+      .eq('id',id);
+
+  if(error){
+
+    console.error(error);
+
+    alert('変更を保存できませんでした。');
+
+    return;
+
+  }
+
+  closeModal();
+
+  setView(table);
+
+}
+
+/* ============================= */
 /* DELETE ROW */
+/* ============================= */
 
 async function deleteRow(table,id){
 
-  if(!confirm('削除しますか？')){
+  const ok =
+    confirm(
+      'この項目を削除しますか？'
+    );
+
+  if(!ok){
     return;
   }
 
@@ -1724,42 +2667,44 @@ async function deleteRow(table,id){
   if(error){
 
     console.error(error);
-
     alert('削除できませんでした。');
 
     return;
+
   }
 
   setView(table);
+
 }
 
+/* ============================= */
 /* TRIP MANAGER */
+/* ============================= */
 
 function openTripManager(){
 
   let html = `
+
     <div class="modal-head">
 
-      <h3>旅行一覧</h3>
+      <h3>
+        旅行一覧
+      </h3>
 
-      <button class="icon-btn" onclick="closeModal()">
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
         ×
       </button>
 
     </div>
+
   `;
-
-  if(profile?.is_admin){
-
-    html += `
-      <div class="admin-note">
-        管理者のため、すべてのユーザーの旅行が表示されています。
-      </div>
-    `;
-  }
 
   html +=
     trips.map(t=>`
+
       <div class="member">
 
         <div class="row between">
@@ -1788,41 +2733,58 @@ function openTripManager(){
         </div>
 
       </div>
+
     `).join('');
 
   html += `
+
     <button
       class="primary full"
       onclick="openNewTrip()"
     >
       ＋ 新しい旅行
     </button>
+
   `;
 
   openModal(html);
+
 }
 
 async function selectTripFromModal(id){
 
   activeTripId = id;
+
   renderTripSelector();
+
   closeModal();
+
   currentView = 'home';
+
   await loadActiveTrip();
+
 }
 
-/* NEW TRIP */
+/* ============================= */
+/* CREATE TRIP */
+/* ============================= */
 
 function openNewTrip(){
 
   closeModal();
 
   openModal(`
+
     <div class="modal-head">
 
-      <h3>新しい旅行</h3>
+      <h3>
+        新しい旅行
+      </h3>
 
-      <button class="icon-btn" onclick="closeModal()">
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
         ×
       </button>
 
@@ -1841,83 +2803,96 @@ function openNewTrip(){
     >
       作成
     </button>
+
   `);
+
 }
 
 async function createTrip(){
 
-  const row = {
-
-    owner_id:me.id,
-
-    title:
-      $('ntTitle').value
-      ||
-      '新しい旅行',
-
-    start_date:
-      $('ntStart').value
-      ||
-      null,
-
-    end_date:
-      $('ntEnd').value
-      ||
-      null,
-
-    cities:
-      $('ntCities').value
-      ||
-      '',
-
-    budget:
-      Number(
-        $('ntBudget').value
-        ||
-        0
-      ),
-
-    currency:
-      $('ntCurrency').value
-      ||
-      'EUR'
-  };
-
   const {data,error} =
     await client
       .from('trips')
-      .insert(row)
+      .insert({
+
+        owner_id:me.id,
+
+        title:
+          $('ntTitle').value
+          ||
+          '新しい旅行',
+
+        start_date:
+          $('ntStart').value
+          ||
+          null,
+
+        end_date:
+          $('ntEnd').value
+          ||
+          null,
+
+        cities:
+          $('ntCities').value
+          ||
+          '',
+
+        budget:
+          Number(
+            $('ntBudget').value
+            ||
+            0
+          ),
+
+        currency:
+          $('ntCurrency').value
+          ||
+          'EUR'
+
+      })
       .select()
       .single();
 
   if(error){
 
     console.error(error);
-
     alert('旅行を作成できませんでした。');
 
     return;
+
   }
 
   closeModal();
 
-  activeTripId = data.id;
+  activeTripId =
+    data.id;
 
   await loadTrips();
+
 }
 
+/* ============================= */
 /* EDIT TRIP */
+/* ============================= */
 
 function openTripEdit(){
 
-  if(!canEdit()) return;
+  if(!canEdit()){
+    return;
+  }
 
   openModal(`
+
     <div class="modal-head">
 
-      <h3>旅行を編集</h3>
+      <h3>
+        旅行を編集
+      </h3>
 
-      <button class="icon-btn" onclick="closeModal()">
+      <button
+        class="icon-btn"
+        onclick="closeModal()"
+      >
         ×
       </button>
 
@@ -1936,74 +2911,83 @@ function openTripEdit(){
     >
       保存
     </button>
+
   `);
+
 }
 
 async function saveTripEdit(){
 
-  const changes = {
-
-    title:
-      $('etTitle').value
-      ||
-      '新しい旅行',
-
-    start_date:
-      $('etStart').value
-      ||
-      null,
-
-    end_date:
-      $('etEnd').value
-      ||
-      null,
-
-    cities:
-      $('etCities').value
-      ||
-      '',
-
-    budget:
-      Number(
-        $('etBudget').value
-        ||
-        0
-      ),
-
-    currency:
-      $('etCurrency').value
-      ||
-      'EUR',
-
-    updated_at:
-      new Date().toISOString()
-  };
-
   const {error} =
     await client
       .from('trips')
-      .update(changes)
-      .eq('id',activeTripId);
+      .update({
+
+        title:
+          $('etTitle').value
+          ||
+          '新しい旅行',
+
+        start_date:
+          $('etStart').value
+          ||
+          null,
+
+        end_date:
+          $('etEnd').value
+          ||
+          null,
+
+        cities:
+          $('etCities').value
+          ||
+          '',
+
+        budget:
+          Number(
+            $('etBudget').value
+            ||
+            0
+          ),
+
+        currency:
+          $('etCurrency').value
+          ||
+          'EUR',
+
+        updated_at:
+          new Date().toISOString()
+
+      })
+      .eq(
+        'id',
+        activeTripId
+      );
 
   if(error){
 
     console.error(error);
-
     alert('保存できませんでした。');
 
     return;
+
   }
 
   closeModal();
 
   await loadTrips();
+
 }
 
+/* ============================= */
 /* DELETE TRIP */
+/* ============================= */
 
 async function deleteTrip(){
 
-  if(!activeTrip) return;
+  if(!activeTrip){
+    return;
+  }
 
   if(
     !profile?.is_admin
@@ -2016,44 +3000,41 @@ async function deleteTrip(){
     );
 
     return;
+
   }
 
-  const firstCheck =
-    confirm(
-      `「${activeTrip.title}」を削除しますか？\n\n旅程・予約・費用・持ち物・メモ・共有設定も削除されます。`
-    );
-
-  if(!firstCheck){
+  if(
+    !confirm(
+      `「${activeTrip.title}」を削除しますか？\n\n旅程・予約・費用・持ち物・メモも削除されます。`
+    )
+  ){
     return;
   }
 
-  const secondCheck =
-    confirm(
-      '本当に削除しますか？\n\nこの操作は元に戻せません。'
-    );
-
-  if(!secondCheck){
+  if(
+    !confirm(
+      '本当に削除しますか？\nこの操作は元に戻せません。'
+    )
+  ){
     return;
   }
-
-  const tripId = activeTrip.id;
-  const tripTitle = activeTrip.title;
 
   const {error} =
     await client
       .from('trips')
       .delete()
-      .eq('id',tripId);
+      .eq(
+        'id',
+        activeTrip.id
+      );
 
   if(error){
 
     console.error(error);
-
-    alert(
-      '旅行を削除できませんでした。'
-    );
+    alert('旅行を削除できませんでした。');
 
     return;
+
   }
 
   closeModal();
@@ -2063,25 +3044,29 @@ async function deleteTrip(){
   activeMembership = null;
   currentView = 'home';
 
-  alert(
-    `「${tripTitle}」を削除しました。`
-  );
-
   await loadTrips();
+
 }
 
+/* ============================= */
 /* SETTINGS */
+/* ============================= */
 
 async function openSettings(){
 
-  if(!activeTrip) return;
+  if(!activeTrip){
+    return;
+  }
 
   if(!profile.is_admin){
 
     openModal(`
+
       <div class="modal-head">
 
-        <h3>旅行設定</h3>
+        <h3>
+          旅行設定
+        </h3>
 
         <button
           class="icon-btn"
@@ -2095,6 +3080,7 @@ async function openSettings(){
       ${
         isActualOwner()
         ? `
+
           <button
             class="primary full"
             onclick="openTripEdit()"
@@ -2104,66 +3090,86 @@ async function openSettings(){
 
           <button
             class="danger"
-            style="width:100%;margin-top:12px"
+            style="
+              width:100%;
+              margin-top:12px
+            "
             onclick="deleteTrip()"
           >
             🗑 この旅行を削除
           </button>
 
-          <div
-            class="muted"
-            style="margin-top:14px"
-          >
-            共有相手の追加・変更はTripNote管理者が行います。
-          </div>
         `
         : `
+
           <div class="card">
             この旅行は共有された旅行です。
           </div>
+
         `
       }
+
     `);
 
     return;
+
   }
 
   const {data:members,error} =
     await client
       .from('trip_members')
       .select('*')
-      .eq('trip_id',activeTripId);
+      .eq(
+        'trip_id',
+        activeTripId
+      );
 
   if(error){
 
-    console.error(error);
-
-    alert('共有設定を取得できませんでした。');
+    alert(
+      '共有設定を取得できませんでした。'
+    );
 
     return;
+
   }
 
   const memberProfiles = [];
 
-  for(const member of members || []){
+  for(
+    const member of members || []
+  ){
 
     const {data:p} =
       await client
         .from('profiles')
-        .select('id,name,email')
-        .eq('id',member.user_id)
+        .select(
+          'id,name,email'
+        )
+        .eq(
+          'id',
+          member.user_id
+        )
         .maybeSingle();
 
     memberProfiles.push({
+
       ...member,
-      profile:p || null
+
+      profile:
+        p || null
+
     });
+
   }
 
   openModal(`
+
     <div class="modal-head">
 
-      <h3>旅行設定</h3>
+      <h3>
+        旅行設定
+      </h3>
 
       <button
         class="icon-btn"
@@ -2176,7 +3182,10 @@ async function openSettings(){
 
     <button
       class="secondary"
-      style="width:100%;margin-bottom:10px"
+      style="
+        width:100%;
+        margin-bottom:10px
+      "
       onclick="openTripEdit()"
     >
       旅行情報を編集
@@ -2184,7 +3193,10 @@ async function openSettings(){
 
     <button
       class="danger"
-      style="width:100%;margin-bottom:10px"
+      style="
+        width:100%;
+        margin-bottom:10px
+      "
       onclick="deleteTrip()"
     >
       🗑 この旅行を削除
@@ -2192,26 +3204,40 @@ async function openSettings(){
 
     <button
       class="primary"
-      style="width:100%;margin-bottom:18px"
+      style="
+        width:100%;
+        margin-bottom:18px
+      "
       onclick="openShareAdd()"
     >
       ＋ 共有相手を追加
     </button>
 
-    <h3>共有中</h3>
+    <h3>
+      共有中
+    </h3>
 
     ${
       memberProfiles.length
       ?
       memberProfiles.map(m=>`
+
         <div class="member">
 
           <div class="member-name">
-            ${esc(m.profile?.name || 'ユーザー')}
+            ${esc(
+              m.profile?.name
+              ||
+              'ユーザー'
+            )}
           </div>
 
           <div class="member-email">
-            ${esc(m.profile?.email || '')}
+            ${esc(
+              m.profile?.email
+              ||
+              ''
+            )}
           </div>
 
           <div class="member-grid">
@@ -2222,18 +3248,28 @@ async function openSettings(){
                 権限
               </div>
 
-              <select id="role-${m.id}">
+              <select
+                id="role-${m.id}"
+              >
 
                 <option
                   value="viewer"
-                  ${m.role==='viewer'?'selected':''}
+                  ${
+                    m.role === 'viewer'
+                    ? 'selected'
+                    : ''
+                  }
                 >
                   閲覧のみ
                 </option>
 
                 <option
                   value="editor"
-                  ${m.role==='editor'?'selected':''}
+                  ${
+                    m.role === 'editor'
+                    ? 'selected'
+                    : ''
+                  }
                 >
                   編集可能
                 </option>
@@ -2248,18 +3284,28 @@ async function openSettings(){
                 費用明細
               </div>
 
-              <select id="expense-${m.id}">
+              <select
+                id="expense-${m.id}"
+              >
 
                 <option
                   value="false"
-                  ${!m.can_view_expenses?'selected':''}
+                  ${
+                    !m.can_view_expenses
+                    ? 'selected'
+                    : ''
+                  }
                 >
                   見せない
                 </option>
 
                 <option
                   value="true"
-                  ${m.can_view_expenses?'selected':''}
+                  ${
+                    m.can_view_expenses
+                    ? 'selected'
+                    : ''
+                  }
                 >
                   見せる
                 </option>
@@ -2283,20 +3329,27 @@ async function openSettings(){
                 padding:9px;
                 border:1px solid #ddd;
                 border-radius:10px;
-                background:white;
               "
             >
 
               <option
                 value="false"
-                ${!m.can_view_notes?'selected':''}
+                ${
+                  !m.can_view_notes
+                  ? 'selected'
+                  : ''
+                }
               >
                 見せない
               </option>
 
               <option
                 value="true"
-                ${m.can_view_notes?'selected':''}
+                ${
+                  m.can_view_notes
+                  ? 'selected'
+                  : ''
+                }
               >
                 見せる
               </option>
@@ -2305,17 +3358,20 @@ async function openSettings(){
 
           </div>
 
-          <div class="row" style="margin-top:12px">
+          <div
+            class="row"
+            style="margin-top:12px"
+          >
 
             <button
-              class="secondary"
+              class="small-action"
               onclick="saveMember('${m.id}')"
             >
               保存
             </button>
 
             <button
-              class="danger"
+              class="small-delete"
               onclick="removeMember('${m.id}')"
             >
               共有解除
@@ -2324,27 +3380,35 @@ async function openSettings(){
           </div>
 
         </div>
+
       `).join('')
       :
       `
+
         <div class="muted">
           まだ誰にも共有していません。
         </div>
+
       `
     }
+
   `);
+
 }
 
+/* ============================= */
 /* SHARE */
+/* ============================= */
 
 function openShareAdd(){
 
-  if(!profile?.is_admin) return;
-
   openModal(`
+
     <div class="modal-head">
 
-      <h3>共有相手を追加</h3>
+      <h3>
+        共有相手を追加
+      </h3>
 
       <button
         class="icon-btn"
@@ -2355,21 +3419,17 @@ function openShareAdd(){
 
     </div>
 
-    <div class="field">
-
-      <label>相手のメールアドレス</label>
-
-      <input
-        id="shareEmail"
-        type="email"
-        placeholder="example@gmail.com"
-      >
-
-    </div>
+    ${field(
+      '相手のメールアドレス',
+      'shareEmail',
+      'email'
+    )}
 
     <div class="field">
 
-      <label>権限</label>
+      <label>
+        権限
+      </label>
 
       <select id="shareRole">
 
@@ -2387,7 +3447,9 @@ function openShareAdd(){
 
     <div class="field">
 
-      <label>費用明細</label>
+      <label>
+        費用明細
+      </label>
 
       <select id="shareExpenses">
 
@@ -2405,7 +3467,9 @@ function openShareAdd(){
 
     <div class="field">
 
-      <label>メモ</label>
+      <label>
+        メモ
+      </label>
 
       <select id="shareNotes">
 
@@ -2421,26 +3485,18 @@ function openShareAdd(){
 
     </div>
 
-    <div
-      class="muted"
-      style="margin-bottom:14px;line-height:1.6"
-    >
-      旅行の総予算は共有相手にも表示されます。
-      「費用明細」は実際に使った金額の一覧を見せるかどうかの設定です。
-    </div>
-
     <button
       class="primary full"
       onclick="addShareMember()"
     >
       共有する
     </button>
+
   `);
+
 }
 
 async function addShareMember(){
-
-  if(!profile?.is_admin) return;
 
   const email =
     $('shareEmail')
@@ -2448,131 +3504,123 @@ async function addShareMember(){
       .trim()
       .toLowerCase();
 
-  if(!email){
-
-    alert(
-      'メールアドレスを入力してください。'
-    );
-
-    return;
-  }
-
   const {
     data:userProfile,
-    error:pErr
+    error
   } =
     await client
       .from('profiles')
-      .select('id,email,name')
-      .eq('email',email)
+      .select(
+        'id,name,email'
+      )
+      .eq(
+        'email',
+        email
+      )
       .maybeSingle();
 
-  if(pErr || !userProfile){
-
-    console.error(pErr);
+  if(
+    error
+    ||
+    !userProfile
+  ){
 
     alert(
-      'そのメールアドレスのTripNoteユーザーが見つかりません。相手に先に新規登録してもらってください。'
+      'そのユーザーが見つかりません。先に新規登録してもらってください。'
     );
 
     return;
+
   }
 
-  if(userProfile.id === activeTrip.owner_id){
-
-    alert(
-      'この人はこの旅行の所有者です。'
-    );
-
-    return;
-  }
-
-  const row = {
-
-    trip_id:activeTripId,
-    user_id:userProfile.id,
-    role:$('shareRole').value,
-
-    can_view_expenses:
-      $('shareExpenses').value === 'true',
-
-    can_view_notes:
-      $('shareNotes').value === 'true'
-  };
-
-  const {error} =
+  const {error:shareError} =
     await client
       .from('trip_members')
-      .upsert(
-        row,
-        {
-          onConflict:'trip_id,user_id'
-        }
-      );
+      .upsert({
 
-  if(error){
+        trip_id:
+          activeTripId,
 
-    console.error(error);
+        user_id:
+          userProfile.id,
+
+        role:
+          $('shareRole').value,
+
+        can_view_expenses:
+          $('shareExpenses').value === 'true',
+
+        can_view_notes:
+          $('shareNotes').value === 'true'
+
+      },{
+        onConflict:
+          'trip_id,user_id'
+      });
+
+  if(shareError){
+
+    console.error(shareError);
 
     alert(
-      '共有設定を保存できませんでした。'
+      '共有できませんでした。'
     );
 
     return;
+
   }
+
+  alert(
+    '共有しました。'
+  );
 
   closeModal();
 
-  alert(
-    `${userProfile.name || userProfile.email}さんに共有しました。`
-  );
 }
 
 async function saveMember(id){
 
-  if(!profile?.is_admin) return;
-
-  const changes = {
-
-    role:
-      $(`role-${id}`).value,
-
-    can_view_expenses:
-      $(`expense-${id}`).value === 'true',
-
-    can_view_notes:
-      $(`notes-${id}`).value === 'true'
-  };
-
   const {error} =
     await client
       .from('trip_members')
-      .update(changes)
-      .eq('id',id);
+      .update({
+
+        role:
+          $(`role-${id}`).value,
+
+        can_view_expenses:
+          $(`expense-${id}`).value === 'true',
+
+        can_view_notes:
+          $(`notes-${id}`).value === 'true'
+
+      })
+      .eq(
+        'id',
+        id
+      );
 
   if(error){
-
-    console.error(error);
 
     alert(
       '保存できませんでした。'
     );
 
     return;
+
   }
 
   alert(
     '共有設定を保存しました。'
   );
+
 }
 
 async function removeMember(id){
 
-  if(!profile?.is_admin) return;
-
   if(
     !confirm(
-      'この人との共有を解除しますか？'
+      '共有を解除しますか？'
     )
   ){
     return;
@@ -2582,26 +3630,29 @@ async function removeMember(id){
     await client
       .from('trip_members')
       .delete()
-      .eq('id',id);
+      .eq(
+        'id',
+        id
+      );
 
   if(error){
-
-    console.error(error);
 
     alert(
       '共有解除できませんでした。'
     );
 
     return;
+
   }
 
   closeModal();
 
   await openSettings();
+
 }
 
 /* ============================= */
-/* PWA AUTO UPDATE */
+/* PWA UPDATE */
 /* ============================= */
 
 let newWorker = null;
@@ -2612,51 +3663,40 @@ function showUpdateToast(){
   $('updateToast')
     .classList
     .remove('hidden');
-}
 
-function hideUpdateToast(){
-
-  $('updateToast')
-    .classList
-    .add('hidden');
 }
 
 async function setupServiceWorker(){
 
-  if(!('serviceWorker' in navigator)){
+  if(
+    !('serviceWorker' in navigator)
+  ){
     return;
   }
 
   try{
 
     const registration =
-      await navigator.serviceWorker.register(
-        '/sw.js',
-        {
-          updateViaCache:'none'
-        }
-      );
+      await navigator
+        .serviceWorker
+        .register(
+          '/sw.js',
+          {
+            updateViaCache:'none'
+          }
+        );
 
-    /*
-      アプリ起動時に毎回
-      新しいsw.jsがないか確認
-    */
     registration.update();
 
-    /*
-      すでに待機中の新バージョンがある場合
-    */
     if(registration.waiting){
 
       newWorker =
         registration.waiting;
 
       showUpdateToast();
+
     }
 
-    /*
-      新しいService Workerを発見
-    */
     registration.addEventListener(
       'updatefound',
       ()=>{
@@ -2664,22 +3704,25 @@ async function setupServiceWorker(){
         const worker =
           registration.installing;
 
-        if(!worker) return;
+        if(!worker){
+          return;
+        }
 
         worker.addEventListener(
           'statechange',
           ()=>{
 
             if(
-              worker.state ===
-              'installed'
+              worker.state === 'installed'
               &&
               navigator.serviceWorker.controller
             ){
 
-              newWorker = worker;
+              newWorker =
+                worker;
 
               showUpdateToast();
+
             }
 
           }
@@ -2688,59 +3731,49 @@ async function setupServiceWorker(){
       }
     );
 
-    /*
-      「更新する」を押した時
-    */
     $('updateButton')
       .addEventListener(
         'click',
         ()=>{
 
-          if(!newWorker){
+          if(newWorker){
+
+            newWorker.postMessage({
+              type:'SKIP_WAITING'
+            });
+
+          }else{
 
             location.reload();
 
-            return;
           }
-
-          newWorker.postMessage({
-            type:'SKIP_WAITING'
-          });
 
         }
       );
 
-    /*
-      新しいService Workerへ切り替わったら
-      自動リロード
-    */
-    navigator.serviceWorker.addEventListener(
-      'controllerchange',
-      ()=>{
+    navigator
+      .serviceWorker
+      .addEventListener(
+        'controllerchange',
+        ()=>{
 
-        if(refreshing){
-          return;
+          if(refreshing){
+            return;
+          }
+
+          refreshing = true;
+
+          location.reload();
+
         }
+      );
 
-        refreshing = true;
-
-        hideUpdateToast();
-
-        location.reload();
-
-      }
-    );
-
-    /*
-      アプリがバックグラウンドから戻った時も確認
-    */
     document.addEventListener(
       'visibilitychange',
       ()=>{
 
         if(
-          document.visibilityState ===
-          'visible'
+          document.visibilityState === 'visible'
         ){
 
           registration.update();
@@ -2752,15 +3785,15 @@ async function setupServiceWorker(){
 
   }catch(error){
 
-    console.error(
-      'Service Worker error:',
-      error
-    );
+    console.error(error);
 
   }
+
 }
 
+/* ============================= */
 /* START */
+/* ============================= */
 
 init();
 setupServiceWorker();

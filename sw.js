@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tripnote-v6';
+const CACHE_NAME = 'tripnote-v7';
 
 const CORE_FILES = [
   '/',
@@ -9,189 +9,78 @@ const CORE_FILES = [
   '/icon-512.png'
 ];
 
-/* インストール */
-self.addEventListener(
-  'install',
-  event => {
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(CORE_FILES))
+  );
 
-    event.waitUntil(
-      caches
-        .open(CACHE_NAME)
-        .then(cache =>
-          cache.addAll(CORE_FILES)
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys =>
+        Promise.all(
+          keys
+            .filter(key => key !== CACHE_NAME)
+            .map(key => caches.delete(key))
         )
-    );
+      )
+      .then(() => self.clients.claim())
+  );
+});
 
+self.addEventListener('fetch', event => {
+  const request = event.request;
+
+  if (request.method !== 'GET') {
+    return;
   }
-);
 
-/* 古いキャッシュを削除 */
-self.addEventListener(
-  'activate',
-  event => {
+  const url = new URL(request.url);
 
-    event.waitUntil(
-
-      caches
-        .keys()
-        .then(keys =>
-          Promise.all(
-            keys
-              .filter(
-                key =>
-                  key !== CACHE_NAME
-              )
-              .map(
-                key =>
-                  caches.delete(key)
-              )
-          )
-        )
-        .then(() =>
-          self.clients.claim()
-        )
-
-    );
-
+  // API・Supabaseはキャッシュしない
+  if (
+    url.pathname.startsWith('/api/') ||
+    url.hostname.includes('supabase')
+  ) {
+    return;
   }
-);
 
-/* 更新ボタンから指示 */
-self.addEventListener(
-  'message',
-  event => {
-
-    if(
-      event.data
-      &&
-      event.data.type ===
-      'SKIP_WAITING'
-    ){
-
-      self.skipWaiting();
-
-    }
-
+  // 他サイトのファイルはそのまま通信
+  if (url.origin !== self.location.origin) {
+    return;
   }
-);
 
-/* 通信処理 */
-self.addEventListener(
-  'fetch',
-  event => {
+  // すべて基本ネット優先
+  event.respondWith(
+    fetch(request)
+      .then(response => {
+        if (response && response.ok) {
+          const copy = response.clone();
 
-    const request =
-      event.request;
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(request, copy);
+            });
+        }
 
-    if(
-      request.method !==
-      'GET'
-    ){
-      return;
-    }
+        return response;
+      })
+      .catch(async () => {
+        const cached = await caches.match(request);
 
-    const url =
-      new URL(
-        request.url
-      );
+        if (cached) {
+          return cached;
+        }
 
-    /*
-      SupabaseやAPIはキャッシュしない
-    */
-    if(
-      url.pathname.startsWith('/api/')
-      ||
-      url.hostname.includes('supabase')
-    ){
-      return;
-    }
+        if (request.mode === 'navigate') {
+          return caches.match('/index.html');
+        }
 
-    /*
-      index.html / トップページは
-      必ずネットを優先
-    */
-    if(
-      request.mode ===
-      'navigate'
-    ){
-
-      event.respondWith(
-
-        fetch(request)
-          .then(response => {
-
-            const copy =
-              response.clone();
-
-            caches
-              .open(CACHE_NAME)
-              .then(cache =>
-                cache.put(
-                  '/index.html',
-                  copy
-                )
-              );
-
-            return response;
-
-          })
-          .catch(() =>
-            caches.match(
-              '/index.html'
-            )
-          )
-
-      );
-
-      return;
-    }
-
-    /*
-      画像やmanifestなど
-    */
-    event.respondWith(
-
-      caches
-        .match(request)
-        .then(cached => {
-
-          const networkFetch =
-            fetch(request)
-              .then(response => {
-
-                if(
-                  response
-                  &&
-                  response.ok
-                ){
-
-                  const copy =
-                    response.clone();
-
-                  caches
-                    .open(CACHE_NAME)
-                    .then(cache =>
-                      cache.put(
-                        request,
-                        copy
-                      )
-                    );
-
-                }
-
-                return response;
-
-              });
-
-          return (
-            cached
-            ||
-            networkFetch
-          );
-
-        })
-
-    );
-
-  }
-);
+        throw new Error('Offline and no cache');
+      })
+  );
+});
